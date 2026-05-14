@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录 SimuLine 平台</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --ink: #1e2a24;
+        --muted: #647067;
+        --card: #fffaf1;
+        --line: #ded2bf;
+        --accent: #0e6b53;
+        --accent-2: #c36b2c;
+        --danger: #9a3f2f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 16% 14%, rgba(14, 107, 83, 0.18), transparent 28rem),
+          radial-gradient(circle at 86% 8%, rgba(195, 107, 44, 0.18), transparent 26rem),
+          linear-gradient(135deg, #f8f0df 0%, var(--bg) 52%, #edf3ea 100%);
+        color: var(--ink);
+        font-family: "Aptos", "Segoe UI", "Microsoft YaHei", sans-serif;
+        padding: 24px;
+      }
+
+      .login-shell {
+        width: min(960px, 100%);
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .brand-panel,
+      .login-card {
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        background: rgba(255, 250, 241, 0.82);
+        box-shadow: 0 24px 80px rgba(42, 35, 23, 0.09);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand-panel {
+        min-height: 520px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        padding: 34px;
+        position: relative;
+      }
+
+      .brand-panel::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        bottom: -120px;
+        width: 320px;
+        height: 320px;
+        border-radius: 44% 56% 47% 53%;
+        background: linear-gradient(135deg, rgba(14, 107, 83, 0.88), rgba(195, 107, 44, 0.74));
+        opacity: 0.16;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 520px;
+        margin: 18px 0 0;
+        font-size: clamp(36px, 7vw, 72px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .brand-copy {
+        max-width: 480px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.8;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-card {
+        align-self: center;
+        padding: 30px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 30px;
+        letter-spacing: -0.04em;
+      }
+
+      .hint {
+        margin: 10px 0 24px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.74);
+        color: var(--ink);
+        font: inherit;
+        padding: 12px 14px;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: rgba(14, 107, 83, 0.58);
+        box-shadow: 0 0 0 4px rgba(14, 107, 83, 0.1);
+      }
+
+      button {
+        border: 0;
+        border-radius: 18px;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 800;
+        margin-top: 6px;
+        padding: 13px 16px;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.68;
+      }
+
+      .message {
+        min-height: 22px;
+        color: var(--danger);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .local-note {
+        margin-top: 18px;
+        border: 1px solid rgba(14, 107, 83, 0.16);
+        border-radius: 18px;
+        background: rgba(14, 107, 83, 0.07);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+        padding: 12px;
+      }
+
+      code {
+        color: var(--accent);
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 12px;
+      }
+
+      @media (max-width: 780px) {
+        .login-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .brand-panel {
+          min-height: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="login-shell">
+      <section class="brand-panel">
+        <div>
+          <div class="eyebrow">SimuLine Strategy Lab</div>
+          <h1>仿真实验与策略评估平台</h1>
+        </div>
+        <p class="brand-copy">
+          登录后可以创建小规模仿真实验、查看实时运行进度，并比较不同策略模板对用户、内容和供给生态的影响。
+        </p>
+      </section>
+
+      <section class="login-card">
+        <h2>用户登录</h2>
+        <p class="hint">请输入平台账号。试用部署可以先使用本地默认账号，正式给客户体验前建议改为专用密码。</p>
+        <form id="loginForm">
+          <label>
+            用户名
+            <input id="username" autocomplete="username" value="admin" required />
+          </label>
+          <label>
+            密码
+            <input id="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button id="loginButton" type="submit">进入平台</button>
+          <div id="message" class="message"></div>
+        </form>
+        <div class="local-note">
+          本地未配置环境变量时，默认账号为 <code>admin</code>，密码为 <code>simuline123</code>。可通过
+          <code>SIMULINE_PLATFORM_USER</code> 和 <code>SIMULINE_PLATFORM_PASSWORD</code> 修改。
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const button = document.getElementById("loginButton");
+      const message = document.getElementById("message");
+
+      function nextUrl() {
+        const next = new URLSearchParams(window.location.search).get("next") || "/";
+        if (!next.startsWith("/") || next.startsWith("//")) return "/";
+        return next;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        button.disabled = true;
+        message.textContent = "正在登录...";
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: document.getElementById("username").value.trim(),
+              password: document.getElementById("password").value,
+            }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.detail || "登录失败，请检查账号和密码");
+          }
+          window.location.href = nextUrl();
+        } catch (error) {
+          message.textContent = error.message;
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

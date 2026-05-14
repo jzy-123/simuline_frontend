@@ -1,0 +1,1799 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SimuLine 仿真实验与策略评估平台</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --ink: #1e2a24;
+        --muted: #647067;
+        --card: #fffaf1;
+        --line: #ded2bf;
+        --accent: #0e6b53;
+        --accent-2: #c36b2c;
+        --accent-3: #234d7d;
+        --danger: #9a3f2f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 10% 10%, rgba(14, 107, 83, 0.16), transparent 28rem),
+          radial-gradient(circle at 80% 0%, rgba(195, 107, 44, 0.16), transparent 26rem),
+          linear-gradient(135deg, #f8f0df 0%, var(--bg) 52%, #edf3ea 100%);
+        color: var(--ink);
+        font-family: "Aptos", "Segoe UI", "Microsoft YaHei", sans-serif;
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 40px clamp(20px, 4vw, 64px) 20px;
+      }
+
+      .topbar {
+        width: min(1180px, 100%);
+        margin: 0 auto 24px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .user-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 250, 241, 0.74);
+        color: var(--muted);
+        font-size: 13px;
+        padding: 7px 8px 7px 13px;
+        box-shadow: 0 16px 48px rgba(42, 35, 23, 0.06);
+      }
+
+      .ghost-button {
+        border: 1px solid rgba(14, 107, 83, 0.24);
+        border-radius: 999px;
+        background: rgba(14, 107, 83, 0.08);
+        color: var(--accent);
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 760;
+        padding: 6px 10px;
+      }
+
+      .ghost-button:hover {
+        background: rgba(14, 107, 83, 0.13);
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 860px;
+        margin: 0;
+        font-size: clamp(34px, 6vw, 72px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .subhead {
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 16px 0 48px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 18px;
+      }
+
+      .panel {
+        background: rgba(255, 250, 241, 0.82);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(42, 35, 23, 0.08);
+        backdrop-filter: blur(14px);
+      }
+
+      .sidebar {
+        padding: 18px;
+        align-self: start;
+        position: sticky;
+        top: 16px;
+      }
+
+      .section-title {
+        margin: 0 0 14px;
+        font-size: 15px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .create-form {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .field-label-row,
+      .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .label-button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        padding: 0;
+        text-align: left;
+      }
+
+      .label-button:hover,
+      .link-button:hover,
+      .danger-link:hover {
+        text-decoration: underline;
+      }
+
+      .template-help {
+        display: grid;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.52);
+        padding: 10px;
+      }
+
+      .template-help.hidden {
+        display: none;
+      }
+
+      .template-help-item {
+        display: grid;
+        gap: 4px;
+        padding: 8px;
+        border-radius: 12px;
+        background: rgba(255, 250, 241, 0.72);
+      }
+
+      .template-help-name {
+        font-size: 13px;
+        font-weight: 780;
+      }
+
+      .template-help-text {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--ink);
+        font: inherit;
+        padding: 10px 12px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .primary-button {
+        border: 0;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 750;
+        padding: 11px 14px;
+      }
+
+      .primary-button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
+
+      .danger-button {
+        border: 1px solid rgba(154, 63, 47, 0.22);
+        border-radius: 999px;
+        background: rgba(154, 63, 47, 0.08);
+        color: var(--danger);
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 720;
+        padding: 6px 9px;
+      }
+
+      .form-message {
+        min-height: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .job-list {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .job-card {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.45);
+        padding: 12px;
+      }
+
+      .item-check {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        accent-color: var(--accent);
+      }
+
+      .card-body {
+        min-width: 0;
+      }
+
+      .job-title {
+        font-size: 13px;
+        font-weight: 760;
+        overflow-wrap: anywhere;
+      }
+
+      .job-meta {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .progress-track {
+        height: 8px;
+        margin-top: 10px;
+        border-radius: 999px;
+        background: #eadfce;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+
+      .link-button {
+        margin-top: 8px;
+        border: 0;
+        background: transparent;
+        color: var(--accent);
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 750;
+        padding: 0;
+      }
+
+      .danger-link {
+        margin-top: 8px;
+        margin-left: 12px;
+        border: 0;
+        background: transparent;
+        color: var(--danger);
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 750;
+        padding: 0;
+      }
+
+      .experiment-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .experiment-card {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff7e8;
+        padding: 12px;
+      }
+
+      .experiment-card.active {
+        background: #e7f1ea;
+        border-color: var(--accent);
+      }
+
+      .experiment-button,
+      .tab-button {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff7e8;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        text-align: left;
+        transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+      }
+
+      .experiment-button {
+        border: 0;
+        background: transparent;
+        padding: 0;
+      }
+
+      .experiment-button:hover,
+      .tab-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(14, 107, 83, 0.45);
+      }
+
+      .tab-button.active {
+        background: #e7f1ea;
+        border-color: var(--accent);
+      }
+
+      .experiment-name {
+        font-weight: 750;
+        line-height: 1.35;
+      }
+
+      .experiment-meta {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .content {
+        display: grid;
+        gap: 18px;
+      }
+
+      .summary-card {
+        padding: 22px;
+      }
+
+      .summary-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        letter-spacing: -0.04em;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: #e7f1ea;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 22px;
+      }
+
+      .kpi {
+        min-height: 120px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.45);
+      }
+
+      .kpi-label {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .kpi-value {
+        margin-top: 12px;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+      }
+
+      .kpi-delta {
+        margin-top: 6px;
+        color: var(--accent);
+        font-size: 13px;
+      }
+
+      .kpi-delta.negative {
+        color: var(--danger);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .tab-button {
+        width: auto;
+        padding: 10px 14px;
+        border-radius: 999px;
+      }
+
+      .chart-panel {
+        padding: 20px;
+        position: relative;
+      }
+
+      .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .chart-title {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: -0.03em;
+      }
+
+      canvas {
+        width: 100%;
+        height: 420px;
+        display: block;
+      }
+
+      .chart-tooltip {
+        position: absolute;
+        z-index: 4;
+        min-width: 160px;
+        border: 1px solid var(--accent);
+        border-radius: 14px;
+        background: rgba(30, 42, 36, 0.92);
+        color: #fffaf1;
+        box-shadow: 0 16px 40px rgba(30, 42, 36, 0.18);
+        font-size: 12px;
+        line-height: 1.45;
+        padding: 9px 10px;
+        pointer-events: none;
+        transform: translate(-50%, calc(-100% - 12px));
+      }
+
+      .chart-tooltip.hidden {
+        display: none;
+      }
+
+      .chart-tooltip strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .legend-swatch {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+
+      .findings {
+        padding: 20px;
+      }
+
+      .micro-panel {
+        padding: 20px;
+      }
+
+      .micro-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .micro-rounds {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .round-chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.56);
+        color: var(--muted);
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 760;
+        padding: 7px 12px;
+      }
+
+      .round-chip.active {
+        background: #e7f1ea;
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .micro-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .micro-grid + .micro-grid {
+        margin-top: 14px;
+      }
+
+      .micro-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .micro-card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.45);
+        padding: 16px;
+      }
+
+      .micro-card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 760;
+      }
+
+      .micro-card-subtitle {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .micro-stat-label {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .micro-stat-value {
+        margin-top: 10px;
+        font-size: 28px;
+        font-weight: 820;
+        letter-spacing: -0.04em;
+      }
+
+      .micro-stat-note {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .micro-bars {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .micro-bar-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) 50px;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .micro-bar-label,
+      .micro-bar-value {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .micro-bar-label {
+        overflow-wrap: anywhere;
+      }
+
+      .micro-bar-track {
+        height: 10px;
+        border-radius: 999px;
+        background: #eadfce;
+        overflow: hidden;
+      }
+
+      .micro-bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+
+      .micro-table-wrap {
+        overflow-x: auto;
+        margin-top: 14px;
+      }
+
+      .micro-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .micro-table th,
+      .micro-table td {
+        border-bottom: 1px solid rgba(222, 210, 191, 0.78);
+        padding: 10px 8px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      .micro-table th {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 760;
+      }
+
+      .micro-table td {
+        color: var(--ink);
+      }
+
+      .micro-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .finding-list {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .finding-list li {
+        border-left: 4px solid var(--accent);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.48);
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .empty,
+      .error {
+        padding: 18px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .error {
+        color: var(--danger);
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .kpis {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .micro-grid,
+        .micro-stat-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          justify-content: flex-start;
+        }
+
+        .summary-top {
+          flex-direction: column;
+        }
+
+        .kpis {
+          grid-template-columns: 1fr;
+        }
+
+        canvas {
+          height: 340px;
+        }
+
+        .micro-bar-row {
+          grid-template-columns: 74px minmax(0, 1fr) 44px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="topbar">
+        <div class="user-chip">
+          <span>当前用户：<strong id="currentUser">加载中</strong></span>
+          <button id="logoutButton" class="ghost-button" type="button">退出登录</button>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="eyebrow">SimuLine Strategy Lab</div>
+        <h1>仿真实验与策略评估平台</h1>
+        <p class="subhead">
+          查看推荐策略对用户反馈、内容质量、创作者流量分布和生态演化的长期影响，支持多轮次、多角色、多维度的综合评估与业务解读
+        </p>
+      </div>
+    </header>
+
+    <main>
+      <div class="layout">
+        <aside class="panel sidebar">
+          <form id="createForm" class="create-form">
+            <p class="section-title">创建小规模实验</p>
+            <div class="field">
+              <div class="field-label-row">
+                <button id="templateHelpToggle" class="label-button" type="button">策略模板</button>
+              </div>
+              <select id="templateSelect"></select>
+              <div id="templateHelp" class="template-help hidden"></div>
+            </div>
+            <div class="field">
+              <label for="experimentName">实验名称</label>
+              <input id="experimentName" placeholder="例如：冷启动策略试跑" required />
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="numRound">轮次</label>
+                <input id="numRound" type="number" min="1" max="20" value="2" />
+              </div>
+              <div class="field">
+                <label for="epochs">训练轮数</label>
+                <input id="epochs" type="number" min="1" max="100" value="1" />
+              </div>
+              <div class="field">
+                <label for="numUser">用户数</label>
+                <input id="numUser" type="number" min="1" max="10000" value="500" />
+              </div>
+              <div class="field">
+                <label for="numCreator">供给方数</label>
+                <input id="numCreator" type="number" min="1" max="1000" value="100" />
+              </div>
+            </div>
+            <button id="createButton" class="primary-button" type="submit">启动仿真</button>
+            <div id="createMessage" class="form-message"></div>
+          </form>
+
+          <div class="section-heading">
+            <p class="section-title">运行任务</p>
+            <button id="deleteSelectedJobs" class="danger-button" type="button">批量删除</button>
+          </div>
+          <div id="jobList" class="job-list">
+            <div class="empty">暂无运行任务</div>
+          </div>
+
+          <div class="section-heading">
+            <p class="section-title">实验列表</p>
+            <button id="deleteSelectedExperiments" class="danger-button" type="button">批量删除</button>
+          </div>
+          <div id="experimentList" class="experiment-list">
+            <div class="empty">正在加载实验...</div>
+          </div>
+        </aside>
+
+        <section class="content">
+          <article class="panel summary-card">
+            <div class="summary-top">
+              <div>
+                <p class="section-title">实验总览</p>
+                <h2 id="experimentTitle">请选择实验</h2>
+              </div>
+              <div class="status"><span class="dot"></span><span id="experimentStatus">等待选择</span></div>
+            </div>
+            <div id="kpis" class="kpis"></div>
+          </article>
+
+          <article class="panel chart-panel">
+            <div class="chart-header">
+              <div>
+                <p class="section-title">指标曲线</p>
+                <h3 id="chartTitle" class="chart-title">Overview</h3>
+              </div>
+            </div>
+            <div id="tabs" class="tabs"></div>
+            <canvas id="metricChart"></canvas>
+            <div id="chartTooltip" class="chart-tooltip hidden"></div>
+            <div id="legend" class="legend"></div>
+          </article>
+
+          <article class="panel micro-panel">
+            <div class="chart-header">
+              <div>
+                <p class="section-title">微观过程</p>
+                <h3 class="chart-title">轮次快照</h3>
+              </div>
+              <div id="microMeta" class="micro-meta">等待实验结果</div>
+            </div>
+            <div id="microContent" class="empty">微观结果会在这里展示用户、创作者和内容层面的过程快照。</div>
+          </article>
+
+          <article class="panel findings">
+            <p class="section-title">业务解读</p>
+            <ul id="findings" class="finding-list"></ul>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const state = {
+        experiments: [],
+        templates: [],
+        jobs: [],
+        selectedJobs: new Set(),
+        selectedExperiments: new Set(),
+        selectedId: null,
+        detail: null,
+        activeGroup: "overview",
+        microRoundIndex: null,
+        chartPoints: [],
+        userSelectedExperiment: false,
+        isRefreshingLive: false,
+      };
+
+      const groupNames = {
+        overview: "总览",
+        user: "用户侧",
+        creator: "创作者侧",
+        content: "内容侧",
+        recsys: "推荐系统",
+      };
+
+      const palette = ["#0e6b53", "#c36b2c", "#234d7d", "#9a3f2f", "#67792f", "#6b4b8f", "#2a7c8f", "#9c6a1d"];
+
+      function formatNumber(value) {
+        if (value === null || value === undefined || Number.isNaN(value)) return "-";
+        const abs = Math.abs(value);
+        if (abs >= 1000) return value.toFixed(0);
+        if (abs >= 10) return value.toFixed(2);
+        return value.toFixed(4);
+      }
+
+      function metricLabel(metric) {
+        return state.detail?.labels?.[metric] || metric;
+      }
+
+      function percent(part, total) {
+        if (!total) return 0;
+        return Math.max(0, Math.min(100, (part / total) * 100));
+      }
+
+      function currentMicroSnapshots() {
+        return state.detail?.micro?.snapshots || [];
+      }
+
+      function currentMicroSnapshot() {
+        const snapshots = currentMicroSnapshots();
+        if (!snapshots.length) return null;
+        const index = state.microRoundIndex ?? (snapshots.length - 1);
+        return snapshots[Math.max(0, Math.min(index, snapshots.length - 1))];
+      }
+
+      function syncMicroRoundIndex() {
+        const snapshots = currentMicroSnapshots();
+        if (!snapshots.length) {
+          state.microRoundIndex = null;
+          return;
+        }
+        if (state.microRoundIndex === null || state.microRoundIndex >= snapshots.length) {
+          state.microRoundIndex = snapshots.length - 1;
+        }
+      }
+
+      function isActiveStatus(status) {
+        return status === "starting" || status === "running";
+      }
+
+      function timeValue(value) {
+        const parsed = Date.parse(value || "");
+        return Number.isNaN(parsed) ? 0 : parsed;
+      }
+
+      function jobForExperiment(experimentId) {
+        return state.jobs.find((job) => job.output_experiment_id === experimentId);
+      }
+
+      function displayStatusForExperiment(experiment) {
+        const job = jobForExperiment(experiment.id);
+        return job ? statusLabel(job.status) : statusLabel(experiment.status);
+      }
+
+      function preferredExperimentId() {
+        const availableIds = new Set(state.experiments.map((experiment) => experiment.id));
+        const liveJob = state.jobs.find((job) => isActiveStatus(job.status) && availableIds.has(job.output_experiment_id));
+        if (liveJob) return liveJob.output_experiment_id;
+        const latestJobWithResult = state.jobs.find((job) => availableIds.has(job.output_experiment_id));
+        if (latestJobWithResult) return latestJobWithResult.output_experiment_id;
+        return state.experiments[0]?.id || null;
+      }
+
+      function redirectToLogin() {
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url);
+        if (response.status === 401) {
+          redirectToLogin();
+          throw new Error("请先登录");
+        }
+        if (!response.ok) {
+          throw new Error(`请求失败：${response.status}`);
+        }
+        return response.json();
+      }
+
+      async function postJson(url, payload) {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          redirectToLogin();
+          throw new Error("请先登录");
+        }
+        if (!response.ok) {
+          throw new Error(data.detail || `请求失败：${response.status}`);
+        }
+        return data;
+      }
+
+      async function deleteJson(url) {
+        const response = await fetch(url, { method: "DELETE" });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          redirectToLogin();
+          throw new Error("请先登录");
+        }
+        if (!response.ok) {
+          throw new Error(data.detail || `请求失败：${response.status}`);
+        }
+        return data;
+      }
+
+      async function loadCurrentUser() {
+        const data = await fetchJson("/api/auth/me");
+        if (!data.authenticated) {
+          redirectToLogin();
+          return;
+        }
+        document.getElementById("currentUser").textContent = data.user.username;
+      }
+
+      async function logout() {
+        try {
+          await postJson("/api/auth/logout", {});
+        } finally {
+          window.location.href = "/login";
+        }
+      }
+
+      async function loadTemplates() {
+        const data = await fetchJson("/api/templates");
+        state.templates = data.items || [];
+        renderTemplates();
+      }
+
+      function renderTemplates() {
+        const select = document.getElementById("templateSelect");
+        select.innerHTML = state.templates.map((template) => `
+          <option value="${template.id}">${template.name}</option>
+        `).join("");
+        document.getElementById("templateHelp").innerHTML = state.templates.map((template) => `
+          <div class="template-help-item">
+            <div class="template-help-name">${template.name}</div>
+            <div class="template-help-text">${template.description}</div>
+            <div class="template-help-text">适用目标：${template.business_goal}</div>
+          </div>
+        `).join("");
+      }
+
+      async function createExperiment(event) {
+        event.preventDefault();
+        const button = document.getElementById("createButton");
+        const message = document.getElementById("createMessage");
+        button.disabled = true;
+        message.textContent = "正在创建任务...";
+        try {
+          const experimentName = document.getElementById("experimentName").value.trim();
+          if (!experimentName) {
+            throw new Error("请先填写实验名称");
+          }
+          const payload = {
+            template_id: document.getElementById("templateSelect").value,
+            name: experimentName,
+            num_round: Number(document.getElementById("numRound").value),
+            num_user: Number(document.getElementById("numUser").value),
+            num_creator: Number(document.getElementById("numCreator").value),
+            epochs: Number(document.getElementById("epochs").value),
+            auto_start: true,
+          };
+          const data = await postJson("/api/experiments", payload);
+          message.textContent = `任务已启动：${data.job.job_id}`;
+          state.userSelectedExperiment = false;
+          state.selectedId = data.job.output_experiment_id || state.selectedId;
+          await loadJobs();
+          await loadExperiments({ preferLive: true, keepGroup: true, refreshDetail: true });
+        } catch (error) {
+          message.textContent = error.message;
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      async function loadJobs() {
+        try {
+          const data = await fetchJson("/api/jobs");
+          state.jobs = data.items || [];
+          renderJobs();
+        } catch (error) {
+          document.getElementById("jobList").innerHTML = `<div class="error">${error.message}</div>`;
+        }
+      }
+
+      function statusLabel(status) {
+        const labels = {
+          pending: "等待中",
+          starting: "启动中",
+          running: "运行中",
+          completed: "已完成",
+          terminated: "已终止",
+          failed: "失败",
+        };
+        return labels[status] || status;
+      }
+
+      function renderJobs() {
+        const container = document.getElementById("jobList");
+        state.selectedJobs = new Set([...state.selectedJobs].filter((id) => state.jobs.some((job) => job.job_id === id)));
+        if (state.jobs.length === 0) {
+          container.innerHTML = `<div class="empty">暂无运行任务</div>`;
+          return;
+        }
+        container.innerHTML = state.jobs.slice(0, 6).map((job) => {
+          const pct = Math.round((job.progress || 0) * 100);
+          const title = job.display_name || job.name || job.job_id;
+          const active = isActiveStatus(job.status);
+          const viewButton = job.output_experiment_id
+            ? `<button class="link-button" data-experiment-id="${job.output_experiment_id}">${active ? "查看实时结果" : "查看结果"}</button>`
+            : "";
+          const actionButton = active
+            ? `<button class="danger-link" data-terminate-job-id="${job.job_id}">终止</button>`
+            : `<button class="danger-link" data-delete-job-id="${job.job_id}">删除</button>`;
+          const checked = state.selectedJobs.has(job.job_id) ? "checked" : "";
+          return `
+            <div class="job-card">
+              <input class="item-check job-check" type="checkbox" data-job-id="${job.job_id}" ${checked} />
+              <div class="card-body">
+                <div class="job-title">${title}</div>
+                <div class="job-meta">${statusLabel(job.status)} · ${job.current_round || 0}/${job.num_round || "-"} 轮 · ${pct}%</div>
+                <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+                ${viewButton}
+                ${actionButton}
+              </div>
+            </div>
+          `;
+        }).join("");
+        container.querySelectorAll(".job-check").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              state.selectedJobs.add(checkbox.dataset.jobId);
+            } else {
+              state.selectedJobs.delete(checkbox.dataset.jobId);
+            }
+          });
+        });
+        container.querySelectorAll("[data-experiment-id]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            await loadExperiments({ keepSelection: true });
+            if (state.experiments.some((experiment) => experiment.id === button.dataset.experimentId)) {
+              await selectExperiment(button.dataset.experimentId, { userSelected: true });
+            } else {
+              document.getElementById("createMessage").textContent = "实验结果正在生成，完成第一轮后会自动显示";
+            }
+          });
+        });
+        container.querySelectorAll("[data-terminate-job-id]").forEach((button) => {
+          button.addEventListener("click", () => terminateSingleJob(button.dataset.terminateJobId));
+        });
+        container.querySelectorAll("[data-delete-job-id]").forEach((button) => {
+          button.addEventListener("click", () => deleteSingleJob(button.dataset.deleteJobId));
+        });
+      }
+
+      async function terminateSingleJob(jobId) {
+        if (!confirm("确定终止这个正在运行的仿真任务吗？已生成的中间结果会保留。")) return;
+        const message = document.getElementById("createMessage");
+        try {
+          await postJson(`/api/jobs/${jobId}/terminate`, {});
+          message.textContent = "运行任务已终止";
+          await refreshLiveData();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+
+      async function deleteSingleJob(jobId) {
+        if (!confirm("确定删除这个运行任务吗？仿真结果不会被自动删除。")) return;
+        const message = document.getElementById("createMessage");
+        try {
+          await deleteJson(`/api/jobs/${jobId}`);
+          state.selectedJobs.delete(jobId);
+          message.textContent = "运行任务已删除";
+          await loadJobs();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+
+      async function deleteSelectedJobs() {
+        const ids = [...state.selectedJobs];
+        if (ids.length === 0) {
+          document.getElementById("createMessage").textContent = "请先勾选要删除的运行任务";
+          return;
+        }
+        if (!confirm(`确定删除 ${ids.length} 个运行任务吗？仿真结果不会被自动删除。`)) return;
+        const message = document.getElementById("createMessage");
+        try {
+          const result = await postJson("/api/jobs/batch-delete", { ids });
+          state.selectedJobs.clear();
+          message.textContent = result.errors.length > 0
+            ? `部分任务删除失败：${result.errors.length} 个`
+            : "已删除选中的运行任务";
+          await loadJobs();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+
+      async function loadExperiments(options = {}) {
+        try {
+          const data = await fetchJson("/api/experiments");
+          state.experiments = (data.items || []).sort((left, right) => timeValue(right.updated_at) - timeValue(left.updated_at));
+          const hasSelected = state.experiments.some((experiment) => experiment.id === state.selectedId);
+          let targetId = hasSelected ? state.selectedId : null;
+          if (!targetId || options.preferLive || (!options.keepSelection && !state.userSelectedExperiment)) {
+            targetId = preferredExperimentId() || targetId;
+          }
+          if (!hasSelected && state.selectedId) {
+            state.detail = null;
+            state.userSelectedExperiment = false;
+          }
+          renderExperimentList();
+          if (targetId) {
+            await selectExperiment(targetId, {
+              keepGroup: options.keepGroup,
+              userSelected: false,
+            });
+          } else if (options.refreshDetail) {
+            renderDetail();
+          }
+        } catch (error) {
+          document.getElementById("experimentList").innerHTML = `<div class="error">${error.message}</div>`;
+        }
+      }
+
+      function renderExperimentList() {
+        const container = document.getElementById("experimentList");
+        state.selectedExperiments = new Set([...state.selectedExperiments].filter((id) => state.experiments.some((experiment) => experiment.id === id)));
+        if (state.experiments.length === 0) {
+          container.innerHTML = `<div class="empty">还没有发现实验结果。请先运行 SimuLine</div>`;
+          return;
+        }
+
+        container.innerHTML = state.experiments.map((experiment) => `
+          <div class="experiment-card ${experiment.id === state.selectedId ? "active" : ""}">
+            <input class="item-check experiment-check" type="checkbox" data-experiment-id="${experiment.id}" ${state.selectedExperiments.has(experiment.id) ? "checked" : ""} />
+            <div class="card-body">
+              <button class="experiment-button" data-id="${experiment.id}">
+                <div class="experiment-name">${experiment.display_name || experiment.name}</div>
+                <div class="experiment-meta">${experiment.round_count} 个轮次 · ${displayStatusForExperiment(experiment)}</div>
+              </button>
+              <button class="danger-link" data-delete-experiment-id="${experiment.id}">删除</button>
+            </div>
+          </div>
+        `).join("");
+
+        container.querySelectorAll(".experiment-check").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              state.selectedExperiments.add(checkbox.dataset.experimentId);
+            } else {
+              state.selectedExperiments.delete(checkbox.dataset.experimentId);
+            }
+          });
+        });
+        container.querySelectorAll(".experiment-button").forEach((button) => {
+          button.addEventListener("click", () => selectExperiment(button.dataset.id, { userSelected: true }));
+        });
+        container.querySelectorAll("[data-delete-experiment-id]").forEach((button) => {
+          button.addEventListener("click", () => deleteSingleExperiment(button.dataset.deleteExperimentId));
+        });
+      }
+
+      async function deleteSingleExperiment(experimentId) {
+        if (!confirm("确定删除这个实验列表项目吗？对应的结果文件也会删除。")) return;
+        const message = document.getElementById("createMessage");
+        try {
+          await deleteJson(`/api/experiments/${experimentId}`);
+          state.selectedExperiments.delete(experimentId);
+          if (state.selectedId === experimentId) {
+            state.selectedId = null;
+            state.detail = null;
+            state.userSelectedExperiment = false;
+          }
+          message.textContent = "实验列表项目已删除";
+          await loadExperiments();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+
+      async function deleteSelectedExperiments() {
+        const ids = [...state.selectedExperiments];
+        if (ids.length === 0) {
+          document.getElementById("createMessage").textContent = "请先勾选要删除的实验列表项目";
+          return;
+        }
+        if (!confirm(`确定删除 ${ids.length} 个实验列表项目吗？对应的结果文件也会删除。`)) return;
+        const message = document.getElementById("createMessage");
+        try {
+          const result = await postJson("/api/experiments/batch-delete", { ids });
+          state.selectedExperiments.clear();
+          if (ids.includes(state.selectedId)) {
+            state.selectedId = null;
+            state.detail = null;
+            state.userSelectedExperiment = false;
+          }
+          message.textContent = result.errors.length > 0
+            ? `部分实验删除失败：${result.errors.length} 个`
+            : "已删除选中的实验列表项目";
+          await loadExperiments();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+
+      async function selectExperiment(id, options = {}) {
+        const sameExperiment = state.selectedId === id;
+        if (options.userSelected) {
+          state.userSelectedExperiment = true;
+        }
+        state.selectedId = id;
+        renderExperimentList();
+        const detail = await fetchJson(`/api/experiments/${id}`);
+        state.detail = detail;
+        if (!sameExperiment) {
+          state.microRoundIndex = null;
+        }
+        if (!options.keepGroup) {
+          state.activeGroup = "overview";
+        }
+        renderDetail();
+      }
+
+      function renderDetail() {
+        if (!state.detail) return;
+        const experiment = state.experiments.find((item) => item.id === state.selectedId);
+        document.getElementById("experimentTitle").textContent = state.detail.name;
+        document.getElementById("experimentStatus").textContent = experiment
+          ? displayStatusForExperiment(experiment)
+          : statusLabel(state.detail.status);
+        syncMicroRoundIndex();
+        renderKpis();
+        renderTabs();
+        renderMicro();
+        renderFindings();
+        drawChart();
+      }
+
+      function renderKpis() {
+        const overview = state.detail.groups.overview || [];
+        const html = overview.map((metric) => {
+          const item = state.detail.summary[metric];
+          if (!item) return "";
+          const deltaClass = item.delta !== null && item.delta < 0 ? "negative" : "";
+          const deltaPrefix = item.delta !== null && item.delta > 0 ? "+" : "";
+          return `
+            <div class="kpi">
+              <div class="kpi-label">${item.label}</div>
+              <div class="kpi-value">${formatNumber(item.latest)}</div>
+              <div class="kpi-delta ${deltaClass}">变化 ${deltaPrefix}${formatNumber(item.delta)}</div>
+            </div>
+          `;
+        }).join("");
+        document.getElementById("kpis").innerHTML = html;
+      }
+
+      function renderTabs() {
+        const tabs = Object.keys(state.detail.groups || {});
+        document.getElementById("tabs").innerHTML = tabs.map((group) => `
+          <button class="tab-button ${group === state.activeGroup ? "active" : ""}" data-group="${group}">
+            ${groupNames[group] || group}
+          </button>
+        `).join("");
+
+        document.querySelectorAll(".tab-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.activeGroup = button.dataset.group;
+            renderTabs();
+            drawChart();
+          });
+        });
+      }
+
+      function microStatCard(label, value, note) {
+        return `
+          <div class="micro-card">
+            <div class="micro-stat-label">${label}</div>
+            <div class="micro-stat-value">${formatNumber(value)}</div>
+            <div class="micro-stat-note">${note}</div>
+          </div>
+        `;
+      }
+
+      function renderHistogramCard(title, subtitle, bins) {
+        if (!bins || bins.length === 0) {
+          return `
+            <section class="micro-card">
+              <h4 class="micro-card-title">${title}</h4>
+              <p class="micro-card-subtitle">${subtitle}</p>
+              <div class="empty">当前轮次暂无分布数据</div>
+            </section>
+          `;
+        }
+        const maxCount = Math.max(...bins.map((item) => item.count), 1);
+        return `
+          <section class="micro-card">
+            <h4 class="micro-card-title">${title}</h4>
+            <p class="micro-card-subtitle">${subtitle}</p>
+            <div class="micro-bars">
+              ${bins.map((item) => `
+                <div class="micro-bar-row">
+                  <div class="micro-bar-label">${item.label}</div>
+                  <div class="micro-bar-track"><div class="micro-bar-fill" style="width:${percent(item.count, maxCount)}%"></div></div>
+                  <div class="micro-bar-value">${item.count}</div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      }
+
+      function renderMicroTable(title, subtitle, columns, rows) {
+        return `
+          <section class="micro-card">
+            <h4 class="micro-card-title">${title}</h4>
+            <p class="micro-card-subtitle">${subtitle}</p>
+            <div class="micro-table-wrap">
+              <table class="micro-table">
+                <thead>
+                  <tr>
+                    ${columns.map((column) => `<th>${column.label}</th>`).join("")}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(rows || []).length > 0 ? rows.map((row) => `
+                    <tr>
+                      ${columns.map((column) => `<td>${column.render ? column.render(row) : formatNumber(row[column.key])}</td>`).join("")}
+                    </tr>
+                  `).join("") : `<tr><td colspan="${columns.length}">当前轮次暂无数据</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderMicro() {
+        const container = document.getElementById("microContent");
+        const meta = document.getElementById("microMeta");
+        const snapshots = currentMicroSnapshots();
+        if (!state.detail?.micro?.available || snapshots.length === 0) {
+          meta.textContent = "当前实验暂未生成微观结果";
+          container.className = "empty";
+          container.innerHTML = "微观结果会在仿真写出用户、创作者和内容记录后自动显示。";
+          return;
+        }
+
+        const snapshot = currentMicroSnapshot();
+        if (!snapshot) {
+          meta.textContent = "当前实验暂未生成微观结果";
+          container.className = "empty";
+          container.innerHTML = "微观结果会在仿真写出用户、创作者和内容记录后自动显示。";
+          return;
+        }
+
+        meta.textContent = `已更新到第 ${snapshot.round} 轮，共 ${snapshots.length} 个轮次快照`;
+        container.className = "";
+        container.innerHTML = `
+          <div class="micro-rounds">
+            ${snapshots.map((item, index) => `
+              <button class="round-chip ${index === state.microRoundIndex ? "active" : ""}" data-micro-round-index="${index}" type="button">
+                第 ${item.round} 轮
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="micro-grid micro-stat-grid">
+            ${microStatCard("有点赞行为的用户", snapshot.user.active_count, `总用户 ${snapshot.user.count}，占比 ${formatNumber(percent(snapshot.user.active_count, snapshot.user.count))}%`)}
+            ${microStatCard("创作者曝光 P90", snapshot.creator.p90, `均值 ${formatNumber(snapshot.creator.mean)}，最高 ${formatNumber(snapshot.creator.max)}`)}
+            ${microStatCard("内容曝光 P90", snapshot.article.p90, `均值 ${formatNumber(snapshot.article.mean)}，最高 ${formatNumber(snapshot.article.max)}`)}
+            ${microStatCard("内容平均质量", snapshot.article.mean_quality, `质量 P90 ${formatNumber(snapshot.article.quality_p90)}`)}
+            ${microStatCard("点赞质量贡献均值", snapshot.user.quality_contribution_mean, `匹配贡献均值 ${formatNumber(snapshot.user.match_contribution_mean)}`)}
+            ${microStatCard("活跃内容数", snapshot.article.active_count, `总内容 ${snapshot.article.count}，平均点击 ${formatNumber(snapshot.article.mean_click)}`)}
+          </div>
+
+          <div class="micro-grid">
+            ${renderHistogramCard("用户点赞分布", "看每个用户累计拿到多少点赞。", snapshot.user.histogram)}
+            ${renderHistogramCard("创作者曝光分布", "看流量是否集中到少数创作者。", snapshot.creator.histogram)}
+          </div>
+
+          <div class="micro-grid">
+            ${renderHistogramCard("内容曝光分布", "看内容层面的流量长尾。", snapshot.article.histogram)}
+            ${renderHistogramCard("内容质量分布", "看当前活跃内容质量的离散情况。", snapshot.article.quality_histogram)}
+          </div>
+
+          <div class="micro-grid">
+            ${renderMicroTable(
+              "曝光最高的创作者",
+              "用于观察头部创作者在当前轮次的受益情况。",
+              [
+                { label: "排名", render: (row) => row.rank },
+                { label: "创作者", render: (row) => row.label },
+                { label: "曝光", key: "value" },
+                { label: "点击", key: "click" },
+                { label: "点赞", key: "like" },
+              ],
+              snapshot.creator.top_creators,
+            )}
+            ${renderMicroTable(
+              "曝光最高的内容",
+              "用于观察哪些内容在过程里持续被推高。",
+              [
+                { label: "排名", render: (row) => row.rank },
+                { label: "内容", render: (row) => row.label },
+                { label: "曝光", key: "value" },
+                { label: "点击", key: "click" },
+                { label: "点赞", key: "like" },
+                { label: "质量", key: "quality" },
+              ],
+              snapshot.article.top_articles,
+            )}
+          </div>
+        `;
+
+        container.querySelectorAll("[data-micro-round-index]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.microRoundIndex = Number(button.dataset.microRoundIndex);
+            renderMicro();
+          });
+        });
+      }
+
+      function renderFindings() {
+        const findings = state.detail.findings || [];
+        document.getElementById("findings").innerHTML = findings.map((finding) => `<li>${finding}</li>`).join("");
+      }
+
+      function drawChart() {
+        const canvas = document.getElementById("metricChart");
+        const ctx = canvas.getContext("2d");
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        ctx.scale(ratio, ratio);
+
+        const width = rect.width;
+        const height = rect.height;
+        state.chartPoints = [];
+        hideChartTooltip();
+        ctx.clearRect(0, 0, width, height);
+
+        const group = state.detail.groups[state.activeGroup] || [];
+        const metrics = group.filter((metric) => state.detail.metrics[metric]);
+        document.getElementById("chartTitle").textContent = groupNames[state.activeGroup] || state.activeGroup;
+
+        if (metrics.length === 0) {
+          document.getElementById("legend").innerHTML = "";
+          ctx.fillStyle = "#647067";
+          ctx.font = "16px Segoe UI";
+          ctx.fillText("当前分组没有可展示指标", 24, 40);
+          return;
+        }
+
+        const padding = { top: 28, right: 30, bottom: 48, left: 64 };
+        const plotWidth = width - padding.left - padding.right;
+        const plotHeight = height - padding.top - padding.bottom;
+        const rounds = state.detail.rounds;
+        const allValues = metrics.flatMap((metric) => state.detail.metrics[metric]).filter((value) => value !== null);
+        if (allValues.length === 0) {
+          document.getElementById("legend").innerHTML = "";
+          ctx.fillStyle = "#647067";
+          ctx.font = "16px Segoe UI";
+          ctx.fillText("当前分组暂无有效数据", 24, 40);
+          return;
+        }
+        let minY = Math.min(...allValues);
+        let maxY = Math.max(...allValues);
+        if (minY === maxY) {
+          minY -= 1;
+          maxY += 1;
+        }
+        const yPad = (maxY - minY) * 0.12;
+        minY -= yPad;
+        maxY += yPad;
+
+        function xAt(index) {
+          if (rounds.length <= 1) return padding.left;
+          return padding.left + (index / (rounds.length - 1)) * plotWidth;
+        }
+
+        function yAt(value) {
+          return padding.top + (1 - (value - minY) / (maxY - minY)) * plotHeight;
+        }
+
+        ctx.strokeStyle = "#ded2bf";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, padding.top);
+        ctx.lineTo(padding.left, padding.top + plotHeight);
+        ctx.lineTo(padding.left + plotWidth, padding.top + plotHeight);
+        ctx.stroke();
+
+        ctx.fillStyle = "#647067";
+        ctx.font = "12px Segoe UI";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i <= 4; i += 1) {
+          const value = minY + ((maxY - minY) * i) / 4;
+          const y = yAt(value);
+          ctx.strokeStyle = "rgba(222, 210, 191, 0.65)";
+          ctx.beginPath();
+          ctx.moveTo(padding.left, y);
+          ctx.lineTo(padding.left + plotWidth, y);
+          ctx.stroke();
+          ctx.fillText(formatNumber(value), padding.left - 10, y);
+        }
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        const xStep = Math.max(1, Math.ceil(rounds.length / 6));
+        rounds.forEach((round, index) => {
+          if (index % xStep !== 0 && index !== rounds.length - 1) return;
+          ctx.fillText(round, xAt(index), padding.top + plotHeight + 14);
+        });
+
+        metrics.forEach((metric, metricIndex) => {
+          const values = state.detail.metrics[metric];
+          const color = palette[metricIndex % palette.length];
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          let started = false;
+          values.forEach((value, index) => {
+            if (value === null) return;
+            const x = xAt(index);
+            const y = yAt(value);
+            if (!started) {
+              ctx.moveTo(x, y);
+              started = true;
+            } else {
+              ctx.lineTo(x, y);
+            }
+          });
+          ctx.stroke();
+
+          values.forEach((value, index) => {
+            if (value === null) return;
+            const x = xAt(index);
+            const y = yAt(value);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+            state.chartPoints.push({
+              x,
+              y,
+              color,
+              metric,
+              round: rounds[index],
+              value,
+            });
+          });
+        });
+
+        document.getElementById("legend").innerHTML = metrics.map((metric, index) => `
+          <span class="legend-item">
+            <span class="legend-swatch" style="background:${palette[index % palette.length]}"></span>
+            ${metricLabel(metric)}
+          </span>
+        `).join("");
+      }
+
+      function hideChartTooltip() {
+        document.getElementById("chartTooltip").classList.add("hidden");
+      }
+
+      function showChartTooltip(event) {
+        if (!state.chartPoints.length) {
+          hideChartTooltip();
+          return;
+        }
+        const canvas = document.getElementById("metricChart");
+        const canvasRect = canvas.getBoundingClientRect();
+        const x = event.clientX - canvasRect.left;
+        const y = event.clientY - canvasRect.top;
+        let nearest = null;
+        let nearestDistance = Infinity;
+        state.chartPoints.forEach((point) => {
+          const distance = Math.hypot(point.x - x, point.y - y);
+          if (distance < nearestDistance) {
+            nearest = point;
+            nearestDistance = distance;
+          }
+        });
+        if (!nearest || nearestDistance > 12) {
+          hideChartTooltip();
+          return;
+        }
+
+        const tooltip = document.getElementById("chartTooltip");
+        tooltip.innerHTML = `
+          <strong>${metricLabel(nearest.metric)}</strong>
+          <span>第 ${nearest.round} 轮：${formatNumber(nearest.value)}</span>
+        `;
+        tooltip.style.borderColor = nearest.color;
+        tooltip.style.left = `${canvas.offsetLeft + nearest.x}px`;
+        tooltip.style.top = `${canvas.offsetTop + nearest.y}px`;
+        tooltip.classList.remove("hidden");
+      }
+
+      async function refreshLiveData() {
+        if (state.isRefreshingLive) return;
+        state.isRefreshingLive = true;
+        try {
+          await loadJobs();
+          await loadExperiments({
+            keepSelection: true,
+            keepGroup: true,
+            preferLive: !state.userSelectedExperiment,
+            refreshDetail: true,
+          });
+        } finally {
+          state.isRefreshingLive = false;
+        }
+      }
+
+      window.addEventListener("resize", () => {
+        if (state.detail) drawChart();
+      });
+
+      document.getElementById("createForm").addEventListener("submit", createExperiment);
+      document.getElementById("deleteSelectedJobs").addEventListener("click", deleteSelectedJobs);
+      document.getElementById("deleteSelectedExperiments").addEventListener("click", deleteSelectedExperiments);
+      document.getElementById("logoutButton").addEventListener("click", logout);
+      document.getElementById("templateHelpToggle").addEventListener("click", () => {
+        document.getElementById("templateHelp").classList.toggle("hidden");
+      });
+      document.getElementById("metricChart").addEventListener("mousemove", showChartTooltip);
+      document.getElementById("metricChart").addEventListener("mouseleave", hideChartTooltip);
+
+      async function bootstrap() {
+        try {
+          await loadCurrentUser();
+          await loadTemplates();
+          await loadJobs();
+          await loadExperiments({ preferLive: true, refreshDetail: true });
+        } catch (error) {
+          document.getElementById("createMessage").textContent = error.message;
+        }
+      }
+
+      bootstrap();
+      setInterval(refreshLiveData, 5000);
+    </script>
+  </body>
+</html>

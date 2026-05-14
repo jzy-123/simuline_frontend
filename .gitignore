@@ -1,0 +1,35 @@
+# MISC 
+.DS_Store
+.vscode
+.idea
+launch.json
+
+# Cache
+__pycache__
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Intermediate Data
+/SimuLine/Preprocessing/Data
+/SimuLine/Preprocessing/UnbiasedEmbedding/data
+/SimuLine/Simulation/Data
+/workspace
+
+# Log
+/log
+/log_tensorboard
+/SimuLine/Preprocessing/UnbiasedEmbedding/logs
+
+# Results
+/Out
+/Image
+
+# Param & Intermediate Variables
+*.pth
+SimuLine-GlobalVariance-*.json
+
+# Local Environments
+.venv/
+venv/
+env/
