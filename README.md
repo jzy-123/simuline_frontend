@@ -1,5 +1,7 @@
 # SimuLine
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Official code repo for manuscript "[Simulating News Recommendation Ecosystems for Insights and Implications](https://ieeexplore.ieee.org/abstract/document/10504866)"
 
 ## Abstract
