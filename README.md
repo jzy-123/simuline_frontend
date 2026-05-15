@@ -107,3 +107,80 @@ python preprocess_3.py
 conda activate SimuLineDev
 python main.py
 ```
+
+### Step.5 Use the Web Platform
+
+If you want to run small-scale experiments and review results in a browser, start the platform service from the project root:
+
+```bash
+conda run -n jzy python run_platform.py
+```
+
+Then open:
+
+```text
+http://localhost:8000
+```
+
+Default login account:
+
+```text
+username: admin
+password: simuline123
+```
+
+You can also override the account with environment variables `SIMULINE_PLATFORM_USER` and `SIMULINE_PLATFORM_PASSWORD`.
+
+## Frontend Usage Guide
+
+The frontend is designed for business-side trial runs and result review. You do not need to edit code to use it.
+
+### 1. Login
+
+- Open `http://localhost:8000`
+- Enter the platform username and password
+- After login, you will enter the experiment dashboard
+
+### 2. Create a Small-Scale Experiment
+
+- In the left control panel, choose a strategy template
+- Fill in the experiment name; this field is required
+- Set the simulation rounds, training epochs, user count, and creator count
+- Click the start button to submit the task
+
+The experiment name you enter will be used consistently in both the running task list and the experiment list, making it easier to track tests by business purpose instead of job ID.
+
+### 3. Understand the Left Control Panel
+
+- Strategy template area: choose a preset recommendation strategy; clicking the label shows template descriptions
+- Running jobs area: shows queued, running, completed, or terminated jobs
+- Experiment list area: shows experiments that already have result outputs and can be opened for analysis
+
+You can also perform daily management directly in the UI:
+
+- Delete a single task or experiment
+- Batch delete selected tasks or experiments
+- Terminate a running task when you want to stop the current simulation early
+
+### 4. View Experiment Results
+
+After selecting an experiment, the main result area on the right will display:
+
+- Experiment overview: core summary indicators for the current experiment
+- Metric curves: round-by-round trend charts for user, creator, content, and recommendation metrics
+- Auto findings: concise text findings generated from the current results
+- Micro process panel: process-level snapshots such as user activity, creator exposure distribution, content exposure distribution, and top-performing creators or articles
+
+If an experiment is still running, the page will keep refreshing the current experiment status and results, so the overview cards, curves, and micro snapshots update as rounds complete.
+
+When you move the mouse over a point on a metric curve, the frontend will show the corresponding round and metric value.
+
+### 5. Recommended Usage Flow
+
+For first-time use, a practical flow is:
+
+1. Start with a small experiment, such as `2` rounds, `500` users, and `100` creators.
+2. Run one baseline strategy first.
+3. Create additional experiments with different templates for side-by-side business review.
+4. Focus first on the overview indicators, then inspect the trend curves and micro process changes.
+5. Stop tasks early if a trial run is only meant for quick validation.
