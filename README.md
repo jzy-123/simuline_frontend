@@ -115,7 +115,7 @@ python main.py
 If you want to run small-scale experiments and review results in a browser, start the platform service from the project root:
 
 ```bash
-conda run -n jzy python run_platform.py
+python run_platform.py
 ```
 
 Then open:
@@ -171,7 +171,6 @@ After selecting an experiment, the main result area on the right will display:
 - Experiment overview: core summary indicators for the current experiment
 - Metric curves: round-by-round trend charts for user, creator, content, and recommendation metrics
 - Auto findings: concise text findings generated from the current results
-- Micro process panel: process-level snapshots such as user activity, creator exposure distribution, content exposure distribution, and top-performing creators or articles
 
 If an experiment is still running, the page will keep refreshing the current experiment status and results, so the overview cards, curves, and micro snapshots update as rounds complete.
 
