@@ -82,6 +82,39 @@ METRIC_GROUPS = {
     ],
 }
 
+ENTITY_TYPE_LABELS = {
+    "user": "用户",
+    "creator": "创作者",
+    "article": "内容",
+}
+
+ENTITY_STATUS_LABELS = {
+    "active": "当前活跃",
+    "expired": "已退出活跃窗口",
+    "pending": "尚未生成",
+}
+
+ENTITY_METRIC_LABELS = {
+    "user": {
+        "like": "累计点赞",
+        "interest_shift": "兴趣漂移",
+    },
+    "creator": {
+        "exposure": "累计曝光",
+        "click": "累计点击",
+        "like": "累计点赞",
+        "latent_shift": "兴趣漂移",
+    },
+    "article": {
+        "exposure": "累计曝光",
+        "click": "累计点击",
+        "like": "累计点赞",
+        "quality": "内容质量",
+        "click_through_rate": "点击率",
+        "like_through_rate": "点赞率",
+    },
+}
+
 EXPERIMENT_TEMPLATES = [
     {
         "id": "baseline",
@@ -144,6 +177,14 @@ class ExperimentNotFoundError(FileNotFoundError):
 
 class ExperimentDeleteError(RuntimeError):
     """Raised when an experiment result cannot be deleted safely."""
+
+
+class EntityNotFoundError(FileNotFoundError):
+    """Raised when an entity cannot be resolved for an experiment."""
+
+
+class EntityTypeError(ValueError):
+    """Raised when an unsupported entity type is requested."""
 
 
 def encode_experiment_id(experiment: str, variant: str, run: str) -> str:
@@ -288,6 +329,170 @@ def numeric_list(value: Any) -> list[float]:
     return values
 
 
+def numeric_value(value: Any) -> float | None:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(parsed):
+        return None
+    return parsed
+
+
+def value_at(values: list[float], index: int) -> float | None:
+    if index < 0 or index >= len(values):
+        return None
+    return values[index]
+
+
+def last_non_none_index(values: list[float | None]) -> int | None:
+    for index in range(len(values) - 1, -1, -1):
+        if values[index] is not None:
+            return index
+    return None
+
+
+def rank_of_index(values: list[float], index: int) -> int | None:
+    current = value_at(values, index)
+    if current is None:
+        return None
+    return 1 + sum(1 for value in values if value > current)
+
+
+def share_of_total(value: float | None, values: list[float]) -> float | None:
+    if value is None:
+        return None
+    total = sum(values)
+    if total <= 0:
+        return None
+    return value / total
+
+
+def tensor_row(matrix: Any, row_index: int) -> list[float]:
+    if row_index < 0:
+        return []
+    if hasattr(matrix, "detach"):
+        matrix = matrix.detach().cpu()
+    if hasattr(matrix, "shape"):
+        shape = tuple(matrix.shape)
+        if len(shape) >= 2 and row_index < shape[0]:
+            return numeric_list(matrix[row_index])
+    if isinstance(matrix, list) and row_index < len(matrix):
+        return numeric_list(matrix[row_index])
+    return []
+
+
+def static_value(record: dict[str, Any] | None, key: str, index: int) -> float | None:
+    if not record:
+        return None
+    return value_at(numeric_list(record.get(key)), index)
+
+
+def latent_shift_series(record: dict[str, Any] | None, row_index: int) -> list[float | None]:
+    if not record:
+        return []
+    latents = record.get("latent")
+    if not isinstance(latents, list):
+        return []
+    shifts: list[float | None] = []
+    previous_row: list[float] | None = None
+    for matrix in latents:
+        current_row = tensor_row(matrix, row_index)
+        if not current_row:
+            shifts.append(None)
+            previous_row = None
+            continue
+        if previous_row is None or len(previous_row) != len(current_row):
+            shifts.append(0.0)
+        else:
+            shifts.append(
+                math.sqrt(sum((current - previous) ** 2 for current, previous in zip(current_row, previous_row)))
+            )
+        previous_row = current_row
+    return shifts
+
+
+def infer_article_layout(article_record: dict[str, Any] | None) -> dict[str, int]:
+    if not article_record:
+        return {
+            "batch_size": 0,
+            "active_window_rounds": 0,
+            "current_max_id": 0,
+            "total_possible_id": 0,
+        }
+    lengths = [len(numeric_list(item)) for item in article_record.get("exposure", [])]
+    positive_lengths = [length for length in lengths if length > 0]
+    batch_size = positive_lengths[0] if positive_lengths else 0
+    max_active_count = max(positive_lengths, default=0)
+    active_window_rounds = int(max_active_count / batch_size) if batch_size else 0
+    latest_index = max((index for index, length in enumerate(lengths) if length > 0), default=-1)
+    current_max_id = 0
+    if latest_index >= 0 and batch_size and active_window_rounds:
+        current_max_id = (
+            max(0, latest_index - (active_window_rounds - 1)) * batch_size + lengths[latest_index]
+        )
+
+    total_possible_id = 0
+    latent = article_record.get("latent")
+    if hasattr(latent, "shape") and len(tuple(latent.shape)) >= 1:
+        total_possible_id = int(tuple(latent.shape)[0])
+    elif isinstance(latent, list):
+        total_possible_id = len(latent)
+
+    return {
+        "batch_size": batch_size,
+        "active_window_rounds": active_window_rounds,
+        "current_max_id": current_max_id,
+        "total_possible_id": total_possible_id,
+    }
+
+
+def article_offset(round_index: int, layout: dict[str, int]) -> int:
+    batch_size = layout["batch_size"]
+    active_window_rounds = layout["active_window_rounds"]
+    if batch_size <= 0 or active_window_rounds <= 0:
+        return 0
+    return max(0, round_index - (active_window_rounds - 1)) * batch_size
+
+
+def article_series(record: dict[str, Any] | None, key: str, entity_id: int, rounds: list[int]) -> list[float | None]:
+    if not record:
+        return [None] * len(rounds)
+    layout = infer_article_layout(record)
+    series: list[float | None] = []
+    for round_index, _round in enumerate(rounds):
+        values = round_record(record, key, round_index)
+        local_index = entity_id - 1 - article_offset(round_index, layout)
+        series.append(value_at(values, local_index))
+    return series
+
+
+def top_ranked_items(
+    values: list[float],
+    *,
+    label_prefix: str,
+    extra_columns: dict[str, list[float]] | None = None,
+    top_n: int = 5,
+    id_offset: int = 0,
+) -> list[dict[str, Any]]:
+    if not values:
+        return []
+    indices = sorted(range(len(values)), key=lambda index: values[index], reverse=True)[:top_n]
+    rows: list[dict[str, Any]] = []
+    for rank, index in enumerate(indices, start=1):
+        entity_id = id_offset + index + 1
+        row: dict[str, Any] = {
+            "rank": rank,
+            "id": entity_id,
+            "label": f"{label_prefix} {entity_id}",
+            "value": values[index],
+        }
+        for column, column_values in (extra_columns or {}).items():
+            row[column] = column_values[index] if index < len(column_values) else None
+        rows.append(row)
+    return rows
+
+
 def safe_mean(values: list[float]) -> float | None:
     if not values:
         return None
@@ -391,28 +596,11 @@ def round_record(record: dict[str, Any] | None, key: str, index: int) -> list[fl
     return numeric_list(values[index])
 
 
-def top_ranked_items(
-    values: list[float],
-    *,
-    label_prefix: str,
-    extra_columns: dict[str, list[float]] | None = None,
-    top_n: int = 5,
-) -> list[dict[str, Any]]:
-    if not values:
-        return []
-    indices = sorted(range(len(values)), key=lambda index: values[index], reverse=True)[:top_n]
-    rows: list[dict[str, Any]] = []
-    for rank, index in enumerate(indices, start=1):
-        row: dict[str, Any] = {
-            "rank": rank,
-            "id": index + 1,
-            "label": f"{label_prefix} {index + 1}",
-            "value": values[index],
-        }
-        for column, column_values in (extra_columns or {}).items():
-            row[column] = column_values[index] if index < len(column_values) else None
-        rows.append(row)
-    return rows
+def latest_nonempty_round_index(record: dict[str, Any] | None, key: str, round_count: int) -> int | None:
+    for index in range(round_count - 1, -1, -1):
+        if round_record(record, key, index):
+            return index
+    return None
 
 
 def build_micro_snapshots(output_path: Path, rounds: list[int]) -> dict[str, Any]:
@@ -421,6 +609,7 @@ def build_micro_snapshots(output_path: Path, rounds: list[int]) -> dict[str, Any
     user_record = load_torch_payload(output_dir / f"{run}_user_record.pth")
     creator_record = load_torch_payload(output_dir / f"{run}_creator_record.pth")
     article_record = load_torch_payload(output_dir / f"{run}_article_record.pth")
+    article_layout = infer_article_layout(article_record)
 
     snapshots: list[dict[str, Any]] = []
     for index, round_value in enumerate(rounds):
@@ -448,6 +637,10 @@ def build_micro_snapshots(output_path: Path, rounds: list[int]) -> dict[str, Any
                     "histogram": build_histogram(user_like),
                     "quality_contribution_mean": safe_mean(user_quality_contribution),
                     "match_contribution_mean": safe_mean(user_match_contribution),
+                    "top_users": top_ranked_items(
+                        user_like,
+                        label_prefix="用户",
+                    ),
                 },
                 "creator": {
                     **summarize_distribution(creator_exposure),
@@ -471,6 +664,7 @@ def build_micro_snapshots(output_path: Path, rounds: list[int]) -> dict[str, Any
                     "top_articles": top_ranked_items(
                         article_exposure,
                         label_prefix="内容",
+                        id_offset=article_offset(index, article_layout),
                         extra_columns={
                             "click": article_click,
                             "like": article_like,
@@ -486,6 +680,433 @@ def build_micro_snapshots(output_path: Path, rounds: list[int]) -> dict[str, Any
         "snapshots": snapshots,
         "latest_round": snapshots[-1]["round"] if snapshots else None,
     }
+
+
+def ensure_entity_type(entity_type: str) -> str:
+    normalized = str(entity_type).strip().lower()
+    if normalized not in ENTITY_TYPE_LABELS:
+        raise EntityTypeError(f"Unsupported entity type: {entity_type}")
+    return normalized
+
+
+def output_record_bundle(output_path: Path) -> dict[str, Any]:
+    run = output_path.stem.removesuffix("_output")
+    output_dir = output_path.parent
+    return {
+        "static": load_torch_payload(output_dir / f"{run}_static_record.pth"),
+        "user": load_torch_payload(output_dir / f"{run}_user_record.pth"),
+        "creator": load_torch_payload(output_dir / f"{run}_creator_record.pth"),
+        "article": load_torch_payload(output_dir / f"{run}_article_record.pth"),
+        "recsys": load_torch_payload(output_dir / f"{run}_recsys_record.pth"),
+    }
+
+
+def entity_catalog_payload(experiment_id: str) -> dict[str, Any]:
+    output_path = experiment_output_path(experiment_id)
+    experiment, variant, run = decode_experiment_id(experiment_id)
+    parsed = read_output_csv(output_path)
+    records = output_record_bundle(output_path)
+    article_layout = infer_article_layout(records["article"])
+    fallback_name = f"{experiment} / {variant} / {run}"
+    display_name = display_name_for_experiment(experiment_id, fallback_name)
+
+    latest_user_index = latest_nonempty_round_index(records["user"], "like", len(parsed["rounds"]))
+    latest_creator_index = latest_nonempty_round_index(records["creator"], "exposure", len(parsed["rounds"]))
+    latest_article_index = latest_nonempty_round_index(records["article"], "exposure", len(parsed["rounds"]))
+
+    latest_user_like = round_record(records["user"], "like", latest_user_index) if latest_user_index is not None else []
+    latest_creator_exposure = round_record(records["creator"], "exposure", latest_creator_index) if latest_creator_index is not None else []
+    latest_creator_click = round_record(records["creator"], "click", latest_creator_index) if latest_creator_index is not None else []
+    latest_creator_like = round_record(records["creator"], "like", latest_creator_index) if latest_creator_index is not None else []
+    latest_article_exposure = round_record(records["article"], "exposure", latest_article_index) if latest_article_index is not None else []
+    latest_article_click = round_record(records["article"], "click", latest_article_index) if latest_article_index is not None else []
+    latest_article_like = round_record(records["article"], "like", latest_article_index) if latest_article_index is not None else []
+    latest_article_quality = round_record(records["article"], "quality", latest_article_index) if latest_article_index is not None else []
+
+    latest_round = parsed["rounds"][-1] if parsed["rounds"] else None
+
+    return {
+        "experiment_id": experiment_id,
+        "experiment_name": display_name,
+        "latest_round": latest_round,
+        "entities": {
+            "user": {
+                "label": ENTITY_TYPE_LABELS["user"],
+                "current_max_id": len(latest_user_like) or len(numeric_list(records["static"].get("user_threshold") if records["static"] else None)),
+                "total_possible_id": len(latest_user_like) or len(numeric_list(records["static"].get("user_threshold") if records["static"] else None)),
+                "top_entities": top_ranked_items(
+                    latest_user_like,
+                    label_prefix="用户",
+                ),
+            },
+            "creator": {
+                "label": ENTITY_TYPE_LABELS["creator"],
+                "current_max_id": len(latest_creator_exposure) or len(numeric_list(records["static"].get("creator_concentration") if records["static"] else None)),
+                "total_possible_id": len(latest_creator_exposure) or len(numeric_list(records["static"].get("creator_concentration") if records["static"] else None)),
+                "top_entities": top_ranked_items(
+                    latest_creator_exposure,
+                    label_prefix="创作者",
+                    extra_columns={
+                        "click": latest_creator_click,
+                        "like": latest_creator_like,
+                    },
+                ),
+            },
+            "article": {
+                "label": ENTITY_TYPE_LABELS["article"],
+                "current_max_id": article_layout["current_max_id"],
+                "total_possible_id": article_layout["total_possible_id"],
+                "top_entities": top_ranked_items(
+                    latest_article_exposure,
+                    label_prefix="内容",
+                    id_offset=article_offset(latest_article_index or 0, article_layout),
+                    extra_columns={
+                        "click": latest_article_click,
+                        "like": latest_article_like,
+                        "quality": latest_article_quality,
+                    },
+                ),
+            },
+        },
+    }
+
+
+def entity_history_rows(rounds: list[int], metrics: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for index, round_value in enumerate(rounds):
+        metric_values = {
+            key: values["values"][index] if index < len(values["values"]) else None
+            for key, values in metrics.items()
+        }
+        rows.append(
+            {
+                "round": round_value,
+                "metrics": metric_values,
+                "active": any(value is not None for value in metric_values.values()),
+            }
+        )
+    return rows
+
+
+def user_entity_detail(
+    *,
+    experiment_id: str,
+    experiment_name: str,
+    records: dict[str, Any],
+    rounds: list[int],
+    entity_id: int,
+) -> dict[str, Any]:
+    user_count = len(numeric_list(records["static"].get("user_threshold") if records["static"] else None))
+    if user_count <= 0:
+        latest_index = latest_nonempty_round_index(records["user"], "like", len(rounds))
+        user_count = len(round_record(records["user"], "like", latest_index)) if latest_index is not None else 0
+    if entity_id < 1 or entity_id > user_count:
+        raise EntityNotFoundError("User not found")
+
+    entity_index = entity_id - 1
+    like_series = [value_at(round_record(records["user"], "like", index), entity_index) for index in range(len(rounds))]
+    interest_shift_series = latent_shift_series(records["user"], entity_index)
+    latest_index = last_non_none_index(like_series)
+    latest_round = rounds[latest_index] if latest_index is not None else None
+    latest_round_values = round_record(records["user"], "like", latest_index) if latest_index is not None else []
+    current_like = like_series[latest_index] if latest_index is not None else None
+
+    metrics = {
+        "like": {"label": ENTITY_METRIC_LABELS["user"]["like"], "values": like_series},
+        "interest_shift": {
+            "label": ENTITY_METRIC_LABELS["user"]["interest_shift"],
+            "values": (interest_shift_series[: len(rounds)] + [None] * len(rounds))[: len(rounds)],
+        },
+    }
+
+    return {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment_name,
+        "entity_type": "user",
+        "entity_type_label": ENTITY_TYPE_LABELS["user"],
+        "entity_id": entity_id,
+        "label": f"用户 {entity_id}",
+        "status": "active",
+        "status_label": ENTITY_STATUS_LABELS["active"],
+        "latest_round": latest_round,
+        "latest_available_round": latest_round,
+        "current_max_id": user_count,
+        "total_possible_id": user_count,
+        "profile": [
+            {"label": "兴趣阈值", "value": static_value(records["static"], "user_threshold", entity_index)},
+            {"label": "质量偏好权重", "value": static_value(records["static"], "user_like_quality_weight", entity_index)},
+            {"label": "匹配偏好权重", "value": static_value(records["static"], "user_like_match_weight", entity_index)},
+            {"label": "用户集中度参数", "value": static_value(records["static"], "user_concentration", entity_index)},
+        ],
+        "current_metrics": [
+            {
+                "key": "like",
+                "label": ENTITY_METRIC_LABELS["user"]["like"],
+                "value": current_like,
+                "rank": rank_of_index(latest_round_values, entity_index) if latest_index is not None else None,
+                "share": share_of_total(current_like, latest_round_values) if latest_index is not None else None,
+            },
+            {
+                "key": "interest_shift",
+                "label": ENTITY_METRIC_LABELS["user"]["interest_shift"],
+                "value": metrics["interest_shift"]["values"][latest_index] if latest_index is not None else None,
+                "rank": None,
+                "share": None,
+            },
+        ],
+        "timeline": {
+            "rounds": rounds,
+            "metrics": metrics,
+            "default_metric": "like",
+        },
+        "history_rows": entity_history_rows(rounds, metrics),
+        "notes": [
+            "用户点赞来自当前活跃窗口内的累计正反馈。",
+            "兴趣阈值和偏好权重来自初始化静态画像，兴趣漂移反映相邻轮次潜在向量变化。",
+        ],
+    }
+
+
+def creator_entity_detail(
+    *,
+    experiment_id: str,
+    experiment_name: str,
+    records: dict[str, Any],
+    rounds: list[int],
+    entity_id: int,
+) -> dict[str, Any]:
+    creator_count = len(numeric_list(records["static"].get("creator_concentration") if records["static"] else None))
+    if creator_count <= 0:
+        latest_index = latest_nonempty_round_index(records["creator"], "exposure", len(rounds))
+        creator_count = len(round_record(records["creator"], "exposure", latest_index)) if latest_index is not None else 0
+    if entity_id < 1 or entity_id > creator_count:
+        raise EntityNotFoundError("Creator not found")
+
+    entity_index = entity_id - 1
+    exposure_series = [value_at(round_record(records["creator"], "exposure", index), entity_index) for index in range(len(rounds))]
+    click_series = [value_at(round_record(records["creator"], "click", index), entity_index) for index in range(len(rounds))]
+    like_series = [value_at(round_record(records["creator"], "like", index), entity_index) for index in range(len(rounds))]
+    creator_latent_shift_series = latent_shift_series(records["creator"], entity_index)
+    latest_index = last_non_none_index(exposure_series)
+    latest_round = rounds[latest_index] if latest_index is not None else None
+    latest_exposure_values = round_record(records["creator"], "exposure", latest_index) if latest_index is not None else []
+    latest_click_values = round_record(records["creator"], "click", latest_index) if latest_index is not None else []
+    latest_like_values = round_record(records["creator"], "like", latest_index) if latest_index is not None else []
+
+    metrics = {
+        "exposure": {"label": ENTITY_METRIC_LABELS["creator"]["exposure"], "values": exposure_series},
+        "click": {"label": ENTITY_METRIC_LABELS["creator"]["click"], "values": click_series},
+        "like": {"label": ENTITY_METRIC_LABELS["creator"]["like"], "values": like_series},
+        "latent_shift": {
+            "label": ENTITY_METRIC_LABELS["creator"]["latent_shift"],
+            "values": (creator_latent_shift_series[: len(rounds)] + [None] * len(rounds))[: len(rounds)],
+        },
+    }
+
+    return {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment_name,
+        "entity_type": "creator",
+        "entity_type_label": ENTITY_TYPE_LABELS["creator"],
+        "entity_id": entity_id,
+        "label": f"创作者 {entity_id}",
+        "status": "active",
+        "status_label": ENTITY_STATUS_LABELS["active"],
+        "latest_round": latest_round,
+        "latest_available_round": latest_round,
+        "current_max_id": creator_count,
+        "total_possible_id": creator_count,
+        "profile": [
+            {"label": "创作集中度参数", "value": static_value(records["static"], "creator_concentration", entity_index)},
+        ],
+        "current_metrics": [
+            {
+                "key": "exposure",
+                "label": ENTITY_METRIC_LABELS["creator"]["exposure"],
+                "value": exposure_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_exposure_values, entity_index) if latest_index is not None else None,
+                "share": share_of_total(exposure_series[latest_index], latest_exposure_values) if latest_index is not None else None,
+            },
+            {
+                "key": "click",
+                "label": ENTITY_METRIC_LABELS["creator"]["click"],
+                "value": click_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_click_values, entity_index) if latest_index is not None else None,
+                "share": share_of_total(click_series[latest_index], latest_click_values) if latest_index is not None else None,
+            },
+            {
+                "key": "like",
+                "label": ENTITY_METRIC_LABELS["creator"]["like"],
+                "value": like_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_like_values, entity_index) if latest_index is not None else None,
+                "share": share_of_total(like_series[latest_index], latest_like_values) if latest_index is not None else None,
+            },
+            {
+                "key": "latent_shift",
+                "label": ENTITY_METRIC_LABELS["creator"]["latent_shift"],
+                "value": metrics["latent_shift"]["values"][latest_index] if latest_index is not None else None,
+                "rank": None,
+                "share": None,
+            },
+        ],
+        "timeline": {
+            "rounds": rounds,
+            "metrics": metrics,
+            "default_metric": "exposure",
+        },
+        "history_rows": entity_history_rows(rounds, metrics),
+        "notes": [
+            "创作者指标是将当前活跃内容窗口内的曝光、点击和点赞聚合到创作者上得到。",
+            "兴趣漂移反映创作者潜在向量在相邻轮次的变化。",
+        ],
+    }
+
+
+def article_entity_detail(
+    *,
+    experiment_id: str,
+    experiment_name: str,
+    records: dict[str, Any],
+    rounds: list[int],
+    entity_id: int,
+) -> dict[str, Any]:
+    layout = infer_article_layout(records["article"])
+    total_possible_id = layout["total_possible_id"] or layout["current_max_id"]
+    if entity_id < 1 or (total_possible_id > 0 and entity_id > total_possible_id):
+        raise EntityNotFoundError("Article not found")
+
+    exposure_series = article_series(records["article"], "exposure", entity_id, rounds)
+    click_series = article_series(records["article"], "click", entity_id, rounds)
+    like_series = article_series(records["article"], "like", entity_id, rounds)
+    quality_series = article_series(records["article"], "quality", entity_id, rounds)
+    ctr_series = [
+        None if exposure is None or exposure <= 0 or click is None else click / exposure
+        for exposure, click in zip(exposure_series, click_series)
+    ]
+    ltr_series = [
+        None if click is None or click <= 0 or like is None else like / click
+        for click, like in zip(click_series, like_series)
+    ]
+    available_indices = [index for index, value in enumerate(exposure_series) if value is not None]
+    latest_index = available_indices[-1] if available_indices else None
+    latest_round = rounds[latest_index] if latest_index is not None else None
+    first_round = rounds[available_indices[0]] if available_indices else None
+
+    if latest_index is None:
+        status = "pending"
+    elif latest_index == len(rounds) - 1:
+        status = "active"
+    else:
+        status = "expired"
+
+    latest_round_values_exposure = round_record(records["article"], "exposure", latest_index) if latest_index is not None else []
+    latest_round_values_click = round_record(records["article"], "click", latest_index) if latest_index is not None else []
+    latest_round_values_like = round_record(records["article"], "like", latest_index) if latest_index is not None else []
+    latest_round_values_quality = round_record(records["article"], "quality", latest_index) if latest_index is not None else []
+    latest_local_index = entity_id - 1 - article_offset(latest_index, layout) if latest_index is not None else -1
+
+    metrics = {
+        "exposure": {"label": ENTITY_METRIC_LABELS["article"]["exposure"], "values": exposure_series},
+        "click": {"label": ENTITY_METRIC_LABELS["article"]["click"], "values": click_series},
+        "like": {"label": ENTITY_METRIC_LABELS["article"]["like"], "values": like_series},
+        "quality": {"label": ENTITY_METRIC_LABELS["article"]["quality"], "values": quality_series},
+        "click_through_rate": {"label": ENTITY_METRIC_LABELS["article"]["click_through_rate"], "values": ctr_series},
+        "like_through_rate": {"label": ENTITY_METRIC_LABELS["article"]["like_through_rate"], "values": ltr_series},
+    }
+
+    return {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment_name,
+        "entity_type": "article",
+        "entity_type_label": ENTITY_TYPE_LABELS["article"],
+        "entity_id": entity_id,
+        "label": f"内容 {entity_id}",
+        "status": status,
+        "status_label": ENTITY_STATUS_LABELS[status],
+        "latest_round": rounds[-1] if rounds else None,
+        "latest_available_round": latest_round,
+        "current_max_id": layout["current_max_id"],
+        "total_possible_id": total_possible_id,
+        "profile": [
+            {"label": "首次进入活跃窗口轮次", "value": first_round},
+            {"label": "最近一次活跃轮次", "value": latest_round},
+            {"label": "质量峰值", "value": max((value for value in quality_series if value is not None), default=None)},
+        ],
+        "current_metrics": [
+            {
+                "key": "exposure",
+                "label": ENTITY_METRIC_LABELS["article"]["exposure"],
+                "value": exposure_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_round_values_exposure, latest_local_index) if latest_index is not None else None,
+                "share": share_of_total(exposure_series[latest_index], latest_round_values_exposure) if latest_index is not None else None,
+            },
+            {
+                "key": "click",
+                "label": ENTITY_METRIC_LABELS["article"]["click"],
+                "value": click_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_round_values_click, latest_local_index) if latest_index is not None else None,
+                "share": share_of_total(click_series[latest_index], latest_round_values_click) if latest_index is not None else None,
+            },
+            {
+                "key": "like",
+                "label": ENTITY_METRIC_LABELS["article"]["like"],
+                "value": like_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_round_values_like, latest_local_index) if latest_index is not None else None,
+                "share": share_of_total(like_series[latest_index], latest_round_values_like) if latest_index is not None else None,
+            },
+            {
+                "key": "quality",
+                "label": ENTITY_METRIC_LABELS["article"]["quality"],
+                "value": quality_series[latest_index] if latest_index is not None else None,
+                "rank": rank_of_index(latest_round_values_quality, latest_local_index) if latest_index is not None else None,
+                "share": None,
+            },
+        ],
+        "timeline": {
+            "rounds": rounds,
+            "metrics": metrics,
+            "default_metric": "exposure",
+        },
+        "history_rows": entity_history_rows(rounds, metrics),
+        "notes": [
+            "内容只在活跃窗口内持续更新，退出窗口后会停止变化。",
+            "点击率 = 点击 / 曝光，点赞率 = 点赞 / 点击，可用于观察单篇内容的转化质量。",
+        ],
+    }
+
+
+def entity_detail_payload(experiment_id: str, entity_type: str, entity_id: int) -> dict[str, Any]:
+    normalized_type = ensure_entity_type(entity_type)
+    output_path = experiment_output_path(experiment_id)
+    experiment, variant, run = decode_experiment_id(experiment_id)
+    parsed = read_output_csv(output_path)
+    records = output_record_bundle(output_path)
+    fallback_name = f"{experiment} / {variant} / {run}"
+    display_name = display_name_for_experiment(experiment_id, fallback_name)
+
+    if normalized_type == "user":
+        return user_entity_detail(
+            experiment_id=experiment_id,
+            experiment_name=display_name,
+            records=records,
+            rounds=parsed["rounds"],
+            entity_id=entity_id,
+        )
+    if normalized_type == "creator":
+        return creator_entity_detail(
+            experiment_id=experiment_id,
+            experiment_name=display_name,
+            records=records,
+            rounds=parsed["rounds"],
+            entity_id=entity_id,
+        )
+    return article_entity_detail(
+        experiment_id=experiment_id,
+        experiment_name=display_name,
+        records=records,
+        rounds=parsed["rounds"],
+        entity_id=entity_id,
+    )
 
 
 def latest_value(values: list[float | None]) -> float | None:

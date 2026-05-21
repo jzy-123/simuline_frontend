@@ -102,6 +102,25 @@
         line-height: 1.7;
       }
 
+      .hero-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(14, 107, 83, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 250, 241, 0.66);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 9px 14px;
+      }
+
       main {
         width: min(1180px, calc(100vw - 32px));
         margin: 0 auto;
@@ -143,6 +162,13 @@
         margin-bottom: 20px;
         padding-bottom: 18px;
         border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar-note {
+        margin: -2px 0 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
       }
 
       .field {
@@ -342,6 +368,16 @@
         padding: 0;
       }
 
+      .table-link {
+        color: var(--accent);
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .table-link:hover {
+        text-decoration: underline;
+      }
+
       .experiment-list {
         display: grid;
         gap: 10px;
@@ -408,8 +444,419 @@
         gap: 18px;
       }
 
+      .page-shell {
+        display: grid;
+        gap: 18px;
+      }
+
+      .page-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 18px;
+        position: sticky;
+        top: 12px;
+        z-index: 3;
+      }
+
+      .nav-cluster {
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .nav-kicker {
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .nav-current-title {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .nav-current-desc {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .page-menu {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid rgba(222, 210, 191, 0.92);
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .page-menu-button,
+      .pager-button {
+        background: rgba(255, 255, 255, 0.6);
+        color: var(--muted);
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .page-menu-button {
+        border: 0;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 10px 14px 12px;
+        white-space: nowrap;
+      }
+
+      .page-menu-button.active {
+        background: transparent;
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .pager-button {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 14px;
+      }
+
+      .pager {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .pager-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .page-indicator {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .result-page {
+        display: none;
+        gap: 18px;
+      }
+
+      .result-page.active {
+        display: grid;
+      }
+
+      .page-intro-card {
+        padding: 18px 20px;
+        background:
+          linear-gradient(135deg, rgba(255, 250, 241, 0.9) 0%, rgba(246, 241, 232, 0.96) 100%);
+      }
+
+      .page-intro-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .page-intro-kicker {
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .page-intro-title {
+        margin: 8px 0 0;
+        font-size: 24px;
+        font-weight: 820;
+        letter-spacing: -0.04em;
+      }
+
+      .page-intro-text {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .page-intro-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .page-intro-chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: rgba(14, 107, 83, 0.08);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 760;
+        padding: 8px 12px;
+      }
+
       .summary-card {
         padding: 22px;
+      }
+
+      .executive-panel {
+        padding: 22px;
+      }
+
+      .verdict-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+        gap: 18px;
+      }
+
+      .verdict-main,
+      .verdict-side {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.48);
+        padding: 18px;
+      }
+
+      .verdict-label {
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 780;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .verdict-title {
+        margin: 10px 0 0;
+        font-size: clamp(28px, 4vw, 40px);
+        letter-spacing: -0.05em;
+        line-height: 0.96;
+      }
+
+      .verdict-text {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      .verdict-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .verdict-facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .verdict-fact {
+        border: 1px solid rgba(222, 210, 191, 0.78);
+        border-radius: 18px;
+        background: rgba(255, 250, 241, 0.72);
+        padding: 14px;
+      }
+
+      .verdict-fact-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .verdict-fact-value {
+        margin-top: 8px;
+        font-size: 20px;
+        font-weight: 820;
+        letter-spacing: -0.04em;
+      }
+
+      .verdict-fact-note {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .verdict-highlights {
+        display: grid;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .verdict-highlight {
+        border-left: 4px solid rgba(14, 107, 83, 0.58);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.48);
+        color: var(--muted);
+        line-height: 1.65;
+        padding: 12px 14px;
+      }
+
+      .verdict-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 760;
+        padding: 9px 12px;
+      }
+
+      .verdict-badge.good {
+        background: rgba(14, 107, 83, 0.12);
+        color: var(--accent);
+      }
+
+      .verdict-badge.warn {
+        background: rgba(195, 107, 44, 0.12);
+        color: var(--accent-2);
+      }
+
+      .verdict-badge.risk {
+        background: rgba(154, 63, 47, 0.12);
+        color: var(--danger);
+      }
+
+      .executive-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .executive-card {
+        border: 1px solid rgba(222, 210, 191, 0.78);
+        border-radius: 18px;
+        background: rgba(255, 250, 241, 0.74);
+        padding: 14px;
+      }
+
+      .executive-card-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 780;
+      }
+
+      .executive-card-state {
+        margin-top: 10px;
+        font-size: 22px;
+        font-weight: 820;
+        letter-spacing: -0.04em;
+      }
+
+      .executive-card-state.good {
+        color: var(--accent);
+      }
+
+      .executive-card-state.warn {
+        color: var(--accent-2);
+      }
+
+      .executive-card-state.risk {
+        color: var(--danger);
+      }
+
+      .executive-card-note {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .action-list {
+        display: grid;
+        gap: 10px;
+        margin: 14px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .action-list li {
+        border-left: 4px solid var(--accent);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.48);
+        color: var(--muted);
+        line-height: 1.65;
+        padding: 12px 14px;
+      }
+
+      .drilldown-panel {
+        padding: 20px;
+      }
+
+      .drilldown-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .drilldown-card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.45);
+        padding: 16px;
+      }
+
+      .drilldown-card-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 780;
+      }
+
+      .drilldown-card-text {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .drilldown-card-meta {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .drilldown-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .drilldown-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(14, 107, 83, 0.1);
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 760;
+        padding: 9px 14px;
+        text-decoration: none;
+      }
+
+      .drilldown-cta:hover {
+        background: rgba(14, 107, 83, 0.16);
       }
 
       .summary-top {
@@ -765,11 +1212,18 @@
           position: static;
         }
 
+        .verdict-layout,
+        .verdict-facts,
+        .executive-grid {
+          grid-template-columns: 1fr;
+        }
+
         .kpis {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .micro-grid,
+        .drilldown-grid,
         .micro-stat-grid {
           grid-template-columns: 1fr;
         }
@@ -782,6 +1236,27 @@
 
         .summary-top {
           flex-direction: column;
+        }
+
+        .hero-pills {
+          gap: 8px;
+        }
+
+        .page-toolbar {
+          align-items: stretch;
+          flex-direction: column;
+          grid-template-columns: 1fr;
+        }
+
+        .pager {
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .nav-brand,
+        .page-intro-top {
+          flex-direction: column;
+          align-items: flex-start;
         }
 
         .kpis {
@@ -810,8 +1285,13 @@
         <div class="eyebrow">SimuLine Strategy Lab</div>
         <h1>仿真实验与策略评估平台</h1>
         <p class="subhead">
-          查看推荐策略对用户反馈、内容质量、创作者流量分布和生态演化的长期影响，支持多轮次、多角色、多维度的综合评估与业务解读
+          用于业务试跑、策略比较与实验评估的分析界面。页面按照综合判断、指标变化和过程观察的顺序组织，便于对实验结果进行结构化解读。
         </p>
+        <div id="heroPills" class="hero-pills">
+          <span class="hero-pill">综合判断优先呈现</span>
+          <span class="hero-pill">实验进度实时更新</span>
+          <span class="hero-pill">支持过程与个体分析</span>
+        </div>
       </div>
     </header>
 
@@ -819,10 +1299,11 @@
       <div class="layout">
         <aside class="panel sidebar">
           <form id="createForm" class="create-form">
-            <p class="section-title">创建小规模实验</p>
+            <p class="section-title">发起评估实验</p>
+            <div class="sidebar-note">用较小规模快速试跑策略，再决定是否继续扩大验证范围。</div>
             <div class="field">
               <div class="field-label-row">
-                <button id="templateHelpToggle" class="label-button" type="button">策略模板</button>
+                <button id="templateHelpToggle" class="label-button" type="button">评估场景</button>
               </div>
               <select id="templateSelect"></select>
               <div id="templateHelp" class="template-help hidden"></div>
@@ -833,28 +1314,28 @@
             </div>
             <div class="form-grid">
               <div class="field">
-                <label for="numRound">轮次</label>
+                <label for="numRound">观察周期</label>
                 <input id="numRound" type="number" min="1" max="20" value="2" />
               </div>
               <div class="field">
-                <label for="epochs">训练轮数</label>
+                <label for="epochs">策略更新频次</label>
                 <input id="epochs" type="number" min="1" max="100" value="1" />
               </div>
               <div class="field">
-                <label for="numUser">用户数</label>
+                <label for="numUser">评估用户规模</label>
                 <input id="numUser" type="number" min="1" max="10000" value="500" />
               </div>
               <div class="field">
-                <label for="numCreator">供给方数</label>
+                <label for="numCreator">创作者规模</label>
                 <input id="numCreator" type="number" min="1" max="1000" value="100" />
               </div>
             </div>
-            <button id="createButton" class="primary-button" type="submit">启动仿真</button>
+            <button id="createButton" class="primary-button" type="submit">启动评估</button>
             <div id="createMessage" class="form-message"></div>
           </form>
 
           <div class="section-heading">
-            <p class="section-title">运行任务</p>
+            <p class="section-title">实验进度</p>
             <button id="deleteSelectedJobs" class="danger-button" type="button">批量删除</button>
           </div>
           <div id="jobList" class="job-list">
@@ -862,7 +1343,7 @@
           </div>
 
           <div class="section-heading">
-            <p class="section-title">实验列表</p>
+            <p class="section-title">历史实验</p>
             <button id="deleteSelectedExperiments" class="danger-button" type="button">批量删除</button>
           </div>
           <div id="experimentList" class="experiment-list">
@@ -871,45 +1352,181 @@
         </aside>
 
         <section class="content">
-          <article class="panel summary-card">
-            <div class="summary-top">
-              <div>
-                <p class="section-title">实验总览</p>
-                <h2 id="experimentTitle">请选择实验</h2>
+          <div class="page-shell">
+            <div class="panel page-toolbar">
+              <div class="nav-cluster">
+                <div class="nav-brand">
+                  <div class="nav-kicker">结果导航</div>
+                  <div>
+                    <div id="navCurrentTitle" class="nav-current-title">策略判断</div>
+                    <div id="navCurrentDesc" class="nav-current-desc">展示实验综合判断及其主要依据。</div>
+                  </div>
+                </div>
+                <div id="pageMenu" class="page-menu"></div>
               </div>
-              <div class="status"><span class="dot"></span><span id="experimentStatus">等待选择</span></div>
-            </div>
-            <div id="kpis" class="kpis"></div>
-          </article>
-
-          <article class="panel chart-panel">
-            <div class="chart-header">
-              <div>
-                <p class="section-title">指标曲线</p>
-                <h3 id="chartTitle" class="chart-title">Overview</h3>
+              <div class="pager">
+                <button id="prevPageButton" class="pager-button" type="button">上一页</button>
+                <div id="pageIndicator" class="page-indicator">1 / 5</div>
+                <button id="nextPageButton" class="pager-button" type="button">下一页</button>
               </div>
             </div>
-            <div id="tabs" class="tabs"></div>
-            <canvas id="metricChart"></canvas>
-            <div id="chartTooltip" class="chart-tooltip hidden"></div>
-            <div id="legend" class="legend"></div>
-          </article>
 
-          <article class="panel micro-panel">
-            <div class="chart-header">
-              <div>
-                <p class="section-title">微观过程</p>
-                <h3 class="chart-title">轮次快照</h3>
-              </div>
-              <div id="microMeta" class="micro-meta">等待实验结果</div>
-            </div>
-            <div id="microContent" class="empty">微观结果会在这里展示用户、创作者和内容层面的过程快照。</div>
-          </article>
+            <section class="result-page active" data-result-page="decision">
+              <article class="panel page-intro-card">
+                <div class="page-intro-top">
+                  <div>
+                    <div class="page-intro-kicker">策略判断</div>
+                    <h3 class="page-intro-title">本页用于展示实验的综合判断结论</h3>
+                  </div>
+                </div>
+                <p class="page-intro-text">该页汇总实验的总体判断，并结合用户反馈、流量分布、内容承接与匹配效率等信息说明判断依据。</p>
+                <div class="page-intro-chips">
+                  <span class="page-intro-chip">展示综合判断</span>
+                  <span class="page-intro-chip">概括关键依据</span>
+                  <span class="page-intro-chip">支持快速阅读</span>
+                </div>
+              </article>
 
-          <article class="panel findings">
-            <p class="section-title">业务解读</p>
-            <ul id="findings" class="finding-list"></ul>
-          </article>
+              <article class="panel executive-panel">
+                <div class="chart-header">
+                  <div>
+                    <p class="section-title">策略判断</p>
+                    <h3 class="chart-title">实验综合判断</h3>
+                  </div>
+                  <div id="dashboardMeta" class="micro-meta">等待实验结果</div>
+                </div>
+                <div class="verdict-layout">
+                  <section class="verdict-main">
+                    <div class="verdict-label">本次建议</div>
+                    <h2 id="verdictTitle" class="verdict-title">请选择一个实验</h2>
+                    <p id="verdictText" class="verdict-text">选择实验后，这里会先给出当前策略的总体判断、关注点和下一步建议。</p>
+                    <div id="verdictBadges" class="verdict-badges"></div>
+                    <div id="verdictFacts" class="verdict-facts"></div>
+                    <div id="verdictHighlights" class="verdict-highlights"></div>
+                  </section>
+                  <section class="verdict-side">
+                    <div class="verdict-label">关键维度</div>
+                    <div id="executiveCards" class="executive-grid"></div>
+                    <ul id="recommendationList" class="action-list"></ul>
+                  </section>
+                </div>
+              </article>
+            </section>
+
+            <section class="result-page" data-result-page="metrics">
+              <article class="panel page-intro-card">
+                <div class="page-intro-top">
+                  <div>
+                    <div class="page-intro-kicker">核心指标</div>
+                    <h3 class="page-intro-title">本页用于展示实验当前的核心结果</h3>
+                  </div>
+                </div>
+                <p class="page-intro-text">该页集中展示当前实验最关键的指标结果，以及相对于上一轮的变化幅度，用于把握当前阶段表现。</p>
+                <div class="page-intro-chips">
+                  <span class="page-intro-chip">展示当前值</span>
+                  <span class="page-intro-chip">展示轮次变化</span>
+                  <span class="page-intro-chip">便于横向比较</span>
+                </div>
+              </article>
+
+              <article class="panel summary-card">
+                <div class="summary-top">
+                  <div>
+                    <p class="section-title">核心指标</p>
+                    <h2 id="experimentTitle">请选择实验</h2>
+                  </div>
+                  <div class="status"><span class="dot"></span><span id="experimentStatus">等待选择</span></div>
+                </div>
+                <div id="kpis" class="kpis"></div>
+              </article>
+            </section>
+
+            <section class="result-page" data-result-page="trend">
+              <article class="panel page-intro-card">
+                <div class="page-intro-top">
+                  <div>
+                    <div class="page-intro-kicker">趋势变化</div>
+                    <h3 class="page-intro-title">本页用于分析指标变化的持续性与稳定性</h3>
+                  </div>
+                </div>
+                <p class="page-intro-text">该页按轮次展示指标走势，用于识别实验结果是持续形成、阶段性波动，还是已经出现拐点。</p>
+                <div class="page-intro-chips">
+                  <span class="page-intro-chip">分析持续性</span>
+                  <span class="page-intro-chip">识别拐点</span>
+                  <span class="page-intro-chip">评估稳定性</span>
+                </div>
+              </article>
+
+              <article class="panel chart-panel">
+                <div class="chart-header">
+                  <div>
+                    <p class="section-title">趋势变化</p>
+                    <h3 id="chartTitle" class="chart-title">总览</h3>
+                  </div>
+                </div>
+                <div id="tabs" class="tabs"></div>
+                <canvas id="metricChart"></canvas>
+                <div id="chartTooltip" class="chart-tooltip hidden"></div>
+                <div id="legend" class="legend"></div>
+              </article>
+            </section>
+
+            <section class="result-page" data-result-page="process">
+              <article class="panel page-intro-card">
+                <div class="page-intro-top">
+                  <div>
+                    <div class="page-intro-kicker">过程观察</div>
+                    <h3 class="page-intro-title">本页用于观察结果形成过程中的结构性变化</h3>
+                  </div>
+                </div>
+                <p class="page-intro-text">该页从用户、创作者和内容三个层面提供过程快照，用于辅助理解宏观指标变化背后的形成机制。</p>
+                <div class="page-intro-chips">
+                  <span class="page-intro-chip">观察形成过程</span>
+                  <span class="page-intro-chip">分析分布变化</span>
+                  <span class="page-intro-chip">识别头部与长尾</span>
+                </div>
+              </article>
+
+              <article class="panel micro-panel">
+                <div class="chart-header">
+                  <div>
+                    <p class="section-title">过程观察</p>
+                    <h3 class="chart-title">轮次快照</h3>
+                  </div>
+                  <div id="microMeta" class="micro-meta">等待实验结果</div>
+                </div>
+                <div id="microContent" class="empty">微观结果会在这里展示用户、创作者和内容层面的过程快照。</div>
+              </article>
+            </section>
+
+            <section class="result-page" data-result-page="entity">
+              <article class="panel page-intro-card">
+                <div class="page-intro-top">
+                  <div>
+                    <div class="page-intro-kicker">个体详情</div>
+                    <h3 class="page-intro-title">本页用于分析单个对象的表现特征</h3>
+                  </div>
+                </div>
+                <p class="page-intro-text">该页支持查看单个用户、创作者或内容的详细表现，用于开展更细粒度的对象分析与异常定位。</p>
+                <div class="page-intro-chips">
+                  <span class="page-intro-chip">查看单个对象</span>
+                  <span class="page-intro-chip">识别头部样本</span>
+                  <span class="page-intro-chip">分析异常对象</span>
+                </div>
+              </article>
+
+              <article class="panel drilldown-panel">
+                <div class="chart-header">
+                  <div>
+                    <p class="section-title">个体详情</p>
+                    <h3 class="chart-title">单个用户、创作者或内容的详细分析</h3>
+                  </div>
+                  <div id="drilldownMeta" class="micro-meta">选择实验后可打开独立详情页</div>
+                </div>
+                <div id="drilldownContent" class="empty">选择一个实验后，这里会提供用户、创作者和内容的个体级分析入口。</div>
+              </article>
+            </section>
+          </div>
         </section>
       </div>
     </main>
@@ -924,6 +1541,7 @@
         selectedId: null,
         detail: null,
         activeGroup: "overview",
+        activeResultPage: "decision",
         microRoundIndex: null,
         chartPoints: [],
         userSelectedExperiment: false,
@@ -939,6 +1557,13 @@
       };
 
       const palette = ["#0e6b53", "#c36b2c", "#234d7d", "#9a3f2f", "#67792f", "#6b4b8f", "#2a7c8f", "#9c6a1d"];
+      const resultPages = [
+        { id: "decision", label: "策略判断", navDesc: "展示实验综合判断及主要依据" },
+        { id: "metrics", label: "核心指标", navDesc: "汇总当前阶段的关键结果指标" },
+        { id: "trend", label: "趋势变化", navDesc: "分析指标变化的持续性与稳定性" },
+        { id: "process", label: "过程观察", navDesc: "观察结果形成过程中的结构变化" },
+        { id: "entity", label: "个体详情", navDesc: "查看单个对象的详细表现" },
+      ];
 
       function formatNumber(value) {
         if (value === null || value === undefined || Number.isNaN(value)) return "-";
@@ -946,6 +1571,104 @@
         if (abs >= 1000) return value.toFixed(0);
         if (abs >= 10) return value.toFixed(2);
         return value.toFixed(4);
+      }
+
+      function formatSigned(value) {
+        if (value === null || value === undefined || Number.isNaN(value)) return "-";
+        return `${value > 0 ? "+" : ""}${formatNumber(value)}`;
+      }
+
+      function summaryMetric(key) {
+        return state.detail?.summary?.[key] || null;
+      }
+
+      function metricStatusTone(status) {
+        return status === "good" ? "good" : status === "risk" ? "risk" : "warn";
+      }
+
+      function businessDimensionCards() {
+        const likeMean = summaryMetric("Metric-Inter-User-Like-Mean");
+        const creatorGini = summaryMetric("Metric-Inter-Creator-Exposure-Gini");
+        const quality = summaryMetric("Metric-Quality-Exposure-Weighted");
+        const mrr = summaryMetric("Metric-RecSys-MRR@5");
+
+        const feedbackStatus = !likeMean
+          ? { title: "用户反馈", state: "等待数据", tone: "warn", note: "实验完成后会显示用户正反馈变化。" }
+          : likeMean.delta > 0.03
+            ? { title: "用户反馈", state: "反馈在放大", tone: "good", note: `点赞均值 ${formatNumber(likeMean.latest)}，较上一轮 ${formatSigned(likeMean.delta)}` }
+            : likeMean.latest > 0.08
+              ? { title: "用户反馈", state: "反馈已形成", tone: "warn", note: `点赞均值 ${formatNumber(likeMean.latest)}，目前变化 ${formatSigned(likeMean.delta)}` }
+              : { title: "用户反馈", state: "反馈仍偏弱", tone: "risk", note: `点赞均值 ${formatNumber(likeMean.latest)}，需要继续观察放大速度` };
+
+        const distributionStatus = !creatorGini
+          ? { title: "流量分布", state: "等待数据", tone: "warn", note: "实验完成后会显示创作者侧流量分配情况。" }
+          : creatorGini.latest < 0.15
+            ? { title: "流量分布", state: "分布较均衡", tone: "good", note: `曝光集中度 ${formatNumber(creatorGini.latest)}，头部挤压暂不明显` }
+            : creatorGini.latest < 0.35
+              ? { title: "流量分布", state: "头部趋势出现", tone: "warn", note: `曝光集中度 ${formatNumber(creatorGini.latest)}，建议继续跟踪头部放大` }
+              : { title: "流量分布", state: "头部集中明显", tone: "risk", note: `曝光集中度 ${formatNumber(creatorGini.latest)}，要警惕流量进一步收敛` };
+
+        const qualityStatus = !quality
+          ? { title: "内容承接", state: "等待数据", tone: "warn", note: "实验完成后会显示优质内容是否获得更多曝光。" }
+          : quality.delta > 0.08
+            ? { title: "内容承接", state: "优质内容被放大", tone: "good", note: `曝光加权质量 ${formatNumber(quality.latest)}，较上一轮 ${formatSigned(quality.delta)}` }
+            : quality.delta >= 0
+              ? { title: "内容承接", state: "质量缓慢爬坡", tone: "warn", note: `曝光加权质量 ${formatNumber(quality.latest)}，当前仍处在验证期` }
+              : { title: "内容承接", state: "质量承接走弱", tone: "risk", note: `曝光加权质量 ${formatNumber(quality.latest)}，较上一轮 ${formatSigned(quality.delta)}` };
+
+        const matchStatus = !mrr
+          ? { title: "匹配效率", state: "等待数据", tone: "warn", note: "实验完成后会显示推荐匹配效率。" }
+          : mrr.latest >= 0.3
+            ? { title: "匹配效率", state: "匹配较强", tone: "good", note: `推荐 MRR@5 为 ${formatNumber(mrr.latest)}，说明前列推荐较有效` }
+            : mrr.latest >= 0.15
+              ? { title: "匹配效率", state: "基础可用", tone: "warn", note: `推荐 MRR@5 为 ${formatNumber(mrr.latest)}，具备继续验证价值` }
+              : { title: "匹配效率", state: "仍待提升", tone: "risk", note: `推荐 MRR@5 为 ${formatNumber(mrr.latest)}，建议继续优化排序策略` };
+
+        return [feedbackStatus, distributionStatus, qualityStatus, matchStatus];
+      }
+
+      function buildVerdict() {
+        const cards = businessDimensionCards();
+        const quality = summaryMetric("Metric-Quality-Exposure-Weighted");
+        const creatorGini = summaryMetric("Metric-Inter-Creator-Exposure-Gini");
+        const likeMean = summaryMetric("Metric-Inter-User-Like-Mean");
+        const match = summaryMetric("Metric-RecSys-MRR@5");
+        const interestShift = summaryMetric("Latent-User_Interest_Shifting");
+
+        let title = "建议继续观察";
+        let text = "当前策略已经有初步信号，但还需要继续看后续轮次中用户反馈、内容承接和流量分布是否稳定。";
+        if (likeMean?.delta > 0.03 && quality?.delta >= 0 && creatorGini?.latest < 0.2 && match?.latest >= 0.15) {
+          title = "建议继续推进";
+          text = "这组策略在当前试跑规模下已经体现出正向反馈和基本可用的匹配效率，可进入下一轮更细化的对比验证。";
+        } else if (creatorGini?.latest >= 0.35 || quality?.delta < 0) {
+          title = "建议谨慎试点";
+          text = "当前结果里已经出现头部集中或质量承接走弱的迹象，建议先小范围试点，不要直接放大投入。";
+        }
+
+        const badges = cards.map((card) => ({
+          tone: card.tone,
+          text: `${card.title}：${card.state}`,
+        }));
+        if (interestShift) {
+          badges.push({
+            tone: interestShift.latest < 0.003 ? "good" : interestShift.latest < 0.01 ? "warn" : "risk",
+            text: `生态波动：${interestShift.latest < 0.003 ? "相对平稳" : interestShift.latest < 0.01 ? "存在变化" : "波动偏大"}`,
+          });
+        }
+
+        const actions = [];
+        if (creatorGini?.latest >= 0.2) {
+          actions.push("下一步建议加一组带冷启动扶持或推广约束的对照实验，重点看流量是否继续向头部集中。");
+        } else {
+          actions.push("当前流量分布相对可控，下一步可以优先扩大实验轮次，观察均衡状态能否持续。");
+        }
+        if (quality?.delta < 0.03) {
+          actions.push("建议继续盯住优质内容承接能力，确认高质量内容是否只是短暂被放大。");
+        } else {
+          actions.push("优质内容承接已有起色，可以继续比较不同策略对质量提升的效率差异。");
+        }
+
+        return { title, text, badges, cards, actions };
       }
 
       function metricLabel(metric) {
@@ -979,6 +1702,82 @@
         }
       }
 
+      function drilldownHref(entityType, entityId) {
+        if (!state.selectedId) return "#";
+        const params = new URLSearchParams({
+          experiment_id: state.selectedId,
+          entity_type: entityType,
+          entity_id: String(entityId),
+        });
+        return `/drilldown?${params.toString()}`;
+      }
+
+      function preferredDrilldownTarget(entityType) {
+        const snapshot = currentMicroSnapshot();
+        const rows = entityType === "user"
+          ? snapshot?.user?.top_users
+          : entityType === "creator"
+            ? snapshot?.creator?.top_creators
+            : snapshot?.article?.top_articles;
+        const row = Array.isArray(rows) ? rows.find((item) => Number(item?.id) > 0) : null;
+        return row || { id: 1, label: `${entityType} 1` };
+      }
+
+      function renderDrilldownPanel() {
+        const meta = document.getElementById("drilldownMeta");
+        const container = document.getElementById("drilldownContent");
+        if (!state.selectedId || !state.detail) {
+          meta.textContent = "选择实验后可打开独立详情页";
+          container.className = "empty";
+          container.innerHTML = "选择一个实验后，这里会提供用户、创作者和内容的个体级分析入口。";
+          return;
+        }
+
+        const snapshot = currentMicroSnapshot();
+        meta.textContent = snapshot
+          ? `当前已更新到第 ${snapshot.round} 轮，打开后会继续实时刷新`
+          : "当前实验可打开独立详情页，进入后可手动切换对象类型和 ID";
+
+        const cards = [
+          {
+            type: "user",
+            title: "用户详情",
+            text: "查看单个用户的点赞表现、兴趣漂移和在实验中的活跃情况。",
+            target: preferredDrilldownTarget("user"),
+          },
+          {
+            type: "creator",
+            title: "创作者详情",
+            text: "查看单个创作者的曝光、点击、点赞和内容供给变化。",
+            target: preferredDrilldownTarget("creator"),
+          },
+          {
+            type: "article",
+            title: "内容详情",
+            text: "查看单条内容的曝光、点击率、点赞和质量变化。",
+            target: preferredDrilldownTarget("article"),
+          },
+        ];
+
+        container.className = "";
+        container.innerHTML = `
+          <div class="drilldown-grid">
+            ${cards.map((card) => `
+              <section class="drilldown-card">
+                <h4 class="drilldown-card-title">${card.title}</h4>
+                <p class="drilldown-card-text">${card.text}</p>
+                <div class="drilldown-card-meta">
+                  默认定位到 ${card.target.label || `${card.type} ${card.target.id}`}，进入后也可以切换任意 ID。
+                </div>
+                <div class="drilldown-actions">
+                  <a class="drilldown-cta" href="${drilldownHref(card.type, card.target.id)}" target="_blank" rel="noopener noreferrer">打开详情页</a>
+                </div>
+              </section>
+            `).join("")}
+          </div>
+        `;
+      }
+
       function isActiveStatus(status) {
         return status === "starting" || status === "running";
       }
@@ -995,6 +1794,133 @@
       function displayStatusForExperiment(experiment) {
         const job = jobForExperiment(experiment.id);
         return job ? statusLabel(job.status) : statusLabel(experiment.status);
+      }
+
+      function renderHeroPills() {
+        const activeJobs = state.jobs.filter((job) => isActiveStatus(job.status)).length;
+        const selectedName = state.detail?.name || state.experiments.find((item) => item.id === state.selectedId)?.display_name;
+        document.getElementById("heroPills").innerHTML = `
+          <span class="hero-pill">运行中实验 ${activeJobs} 项</span>
+          <span class="hero-pill">历史结果 ${state.experiments.length} 组</span>
+          <span class="hero-pill">${selectedName ? `当前查看：${selectedName}` : "选择实验后生成判断"}</span>
+        `;
+      }
+
+      function activeResultPageIndex() {
+        const index = resultPages.findIndex((page) => page.id === state.activeResultPage);
+        return index >= 0 ? index : 0;
+      }
+
+      function renderResultNavigation() {
+        const menu = document.getElementById("pageMenu");
+        const pageIndex = activeResultPageIndex();
+        const currentPage = resultPages[pageIndex];
+        document.getElementById("navCurrentTitle").textContent = currentPage.label;
+        document.getElementById("navCurrentDesc").textContent = currentPage.navDesc;
+        menu.innerHTML = resultPages.map((page) => `
+          <button class="page-menu-button ${page.id === state.activeResultPage ? "active" : ""}" data-result-page-button="${page.id}" type="button">
+            ${page.label}
+          </button>
+        `).join("");
+        document.getElementById("pageIndicator").textContent = `${pageIndex + 1} / ${resultPages.length}`;
+        document.getElementById("prevPageButton").disabled = pageIndex === 0;
+        document.getElementById("nextPageButton").disabled = pageIndex === resultPages.length - 1;
+
+        menu.querySelectorAll("[data-result-page-button]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.activeResultPage = button.dataset.resultPageButton;
+            renderResultPages();
+          });
+        });
+      }
+
+      function renderResultPages() {
+        renderResultNavigation();
+        document.querySelectorAll("[data-result-page]").forEach((section) => {
+          section.classList.toggle("active", section.dataset.resultPage === state.activeResultPage);
+        });
+        if (state.activeResultPage === "trend" && state.detail) {
+          drawChart();
+        }
+      }
+
+      function moveResultPage(step) {
+        const nextIndex = activeResultPageIndex() + step;
+        if (nextIndex < 0 || nextIndex >= resultPages.length) return;
+        state.activeResultPage = resultPages[nextIndex].id;
+        renderResultPages();
+      }
+
+      function renderExecutivePanel() {
+        const meta = document.getElementById("dashboardMeta");
+        const badgeContainer = document.getElementById("verdictBadges");
+        const factContainer = document.getElementById("verdictFacts");
+        const highlightContainer = document.getElementById("verdictHighlights");
+        const cardContainer = document.getElementById("executiveCards");
+        const actionContainer = document.getElementById("recommendationList");
+        if (!state.detail) {
+          meta.textContent = "等待实验结果";
+          badgeContainer.innerHTML = "";
+          factContainer.innerHTML = "";
+          highlightContainer.innerHTML = "";
+          cardContainer.innerHTML = "";
+          actionContainer.innerHTML = "";
+          return;
+        }
+
+        const experiment = state.experiments.find((item) => item.id === state.selectedId);
+        const snapshots = currentMicroSnapshots();
+        meta.textContent = `${displayStatusForExperiment(experiment || state.detail)} · ${state.detail.rounds.length} 个轮次 · ${snapshots.length ? `已生成 ${snapshots.length} 个过程快照` : "过程快照生成中"}`;
+
+        const verdict = buildVerdict();
+        document.getElementById("verdictTitle").textContent = verdict.title;
+        document.getElementById("verdictText").textContent = verdict.text;
+        badgeContainer.innerHTML = verdict.badges.map((badge) => `
+          <span class="verdict-badge ${metricStatusTone(badge.tone)}">${badge.text}</span>
+        `).join("");
+        const feedback = summaryMetric("Metric-Inter-User-Like-Mean");
+        const quality = summaryMetric("Metric-Quality-Exposure-Weighted");
+        const facts = [
+          {
+            label: "当前状态",
+            value: displayStatusForExperiment(experiment || state.detail),
+            note: `${state.detail.rounds.length} 个轮次已纳入分析`,
+          },
+          {
+            label: "过程快照",
+            value: `${snapshots.length} 份`,
+            note: snapshots.length ? `当前已更新到第 ${snapshots[snapshots.length - 1].round} 轮` : "正在等待微观快照生成",
+          },
+          {
+            label: "用户反馈",
+            value: feedback ? formatNumber(feedback.latest) : "-",
+            note: feedback ? `较上一轮 ${formatSigned(feedback.delta)}` : "等待数据",
+          },
+          {
+            label: "质量承接",
+            value: quality ? formatNumber(quality.latest) : "-",
+            note: quality ? `较上一轮 ${formatSigned(quality.delta)}` : "等待数据",
+          },
+        ];
+        factContainer.innerHTML = facts.map((fact) => `
+          <section class="verdict-fact">
+            <div class="verdict-fact-label">${fact.label}</div>
+            <div class="verdict-fact-value">${fact.value}</div>
+            <div class="verdict-fact-note">${fact.note}</div>
+          </section>
+        `).join("");
+        const highlights = (state.detail.findings || []).slice(0, 2);
+        highlightContainer.innerHTML = highlights.length
+          ? highlights.map((item) => `<div class="verdict-highlight">${item}</div>`).join("")
+          : '<div class="verdict-highlight">当前结果变化较平稳，建议继续观察更多轮次再做结论。</div>';
+        cardContainer.innerHTML = verdict.cards.map((card) => `
+          <section class="executive-card">
+            <h4 class="executive-card-title">${card.title}</h4>
+            <div class="executive-card-state ${metricStatusTone(card.tone)}">${card.state}</div>
+            <div class="executive-card-note">${card.note}</div>
+          </section>
+        `).join("");
+        actionContainer.innerHTML = verdict.actions.map((item) => `<li>${item}</li>`).join("");
       }
 
       function preferredExperimentId() {
@@ -1127,6 +2053,7 @@
           const data = await fetchJson("/api/jobs");
           state.jobs = data.items || [];
           renderJobs();
+          renderHeroPills();
         } catch (error) {
           document.getElementById("jobList").innerHTML = `<div class="error">${error.message}</div>`;
         }
@@ -1261,6 +2188,7 @@
             state.userSelectedExperiment = false;
           }
           renderExperimentList();
+          renderHeroPills();
           if (targetId) {
             await selectExperiment(targetId, {
               keepGroup: options.keepGroup,
@@ -1381,11 +2309,13 @@
           ? displayStatusForExperiment(experiment)
           : statusLabel(state.detail.status);
         syncMicroRoundIndex();
+        renderHeroPills();
+        renderExecutivePanel();
+        renderDrilldownPanel();
         renderKpis();
         renderTabs();
         renderMicro();
-        renderFindings();
-        drawChart();
+        renderResultPages();
       }
 
       function renderKpis() {
@@ -1399,7 +2329,7 @@
             <div class="kpi">
               <div class="kpi-label">${item.label}</div>
               <div class="kpi-value">${formatNumber(item.latest)}</div>
-              <div class="kpi-delta ${deltaClass}">变化 ${deltaPrefix}${formatNumber(item.delta)}</div>
+              <div class="kpi-delta ${deltaClass}">较上一轮 ${deltaPrefix}${formatNumber(item.delta)}</div>
             </div>
           `;
         }).join("");
@@ -1509,6 +2439,9 @@
         container.className = "";
         container.innerHTML = `
           <div class="micro-rounds">
+            <a class="table-link" href="${drilldownHref("user", 1)}" target="_blank" rel="noopener noreferrer">打开个体详情界面</a>
+          </div>
+          <div class="micro-rounds">
             ${snapshots.map((item, index) => `
               <button class="round-chip ${index === state.microRoundIndex ? "active" : ""}" data-micro-round-index="${index}" type="button">
                 第 ${item.round} 轮
@@ -1532,10 +2465,21 @@
 
           <div class="micro-grid">
             ${renderHistogramCard("内容曝光分布", "看内容层面的流量长尾。", snapshot.article.histogram)}
-            ${renderHistogramCard("内容质量分布", "看当前活跃内容质量的离散情况。", snapshot.article.quality_histogram)}
+            ${renderHistogramCard("内容质量分布", "展示当前活跃内容质量的离散情况。", snapshot.article.quality_histogram)}
           </div>
 
           <div class="micro-grid">
+            ${renderMicroTable(
+              "点赞最高的用户",
+              "从主界面直接跳到单个用户的逐轮明细。",
+              [
+                { label: "排名", render: (row) => row.rank },
+                { label: "用户", render: (row) => row.label },
+                { label: "点赞", key: "value" },
+                { label: "详情", render: (row) => `<a class="table-link" href="${drilldownHref("user", row.id)}" target="_blank" rel="noopener noreferrer">查看</a>` },
+              ],
+              snapshot.user.top_users,
+            )}
             ${renderMicroTable(
               "曝光最高的创作者",
               "用于观察头部创作者在当前轮次的受益情况。",
@@ -1545,9 +2489,13 @@
                 { label: "曝光", key: "value" },
                 { label: "点击", key: "click" },
                 { label: "点赞", key: "like" },
+                { label: "详情", render: (row) => `<a class="table-link" href="${drilldownHref("creator", row.id)}" target="_blank" rel="noopener noreferrer">查看</a>` },
               ],
               snapshot.creator.top_creators,
             )}
+          </div>
+
+          <div class="micro-grid">
             ${renderMicroTable(
               "曝光最高的内容",
               "用于观察哪些内容在过程里持续被推高。",
@@ -1558,8 +2506,18 @@
                 { label: "点击", key: "click" },
                 { label: "点赞", key: "like" },
                 { label: "质量", key: "quality" },
+                { label: "详情", render: (row) => `<a class="table-link" href="${drilldownHref("article", row.id)}" target="_blank" rel="noopener noreferrer">查看</a>` },
               ],
               snapshot.article.top_articles,
+            )}
+            ${renderMicroTable(
+              "个体详情使用提示",
+              "也可以在独立页面里手动输入任意用户 / 创作者 / 内容 ID。",
+              [
+                { label: "入口", render: () => `<a class="table-link" href="${drilldownHref("user", 1)}" target="_blank" rel="noopener noreferrer">打开独立详情页面</a>` },
+                { label: "说明", render: () => "页面会随仿真实时刷新，可切换实验、对象类型和 ID。" },
+              ],
+              [{}],
             )}
           </div>
         `;
@@ -1572,16 +2530,16 @@
         });
       }
 
-      function renderFindings() {
-        const findings = state.detail.findings || [];
-        document.getElementById("findings").innerHTML = findings.map((finding) => `<li>${finding}</li>`).join("");
-      }
-
       function drawChart() {
         const canvas = document.getElementById("metricChart");
         const ctx = canvas.getContext("2d");
         const ratio = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) {
+          state.chartPoints = [];
+          hideChartTooltip();
+          return;
+        }
         canvas.width = Math.max(1, Math.floor(rect.width * ratio));
         canvas.height = Math.max(1, Math.floor(rect.height * ratio));
         ctx.scale(ratio, ratio);
@@ -1768,7 +2726,7 @@
       }
 
       window.addEventListener("resize", () => {
-        if (state.detail) drawChart();
+        if (state.detail && state.activeResultPage === "trend") drawChart();
       });
 
       document.getElementById("createForm").addEventListener("submit", createExperiment);
@@ -1778,11 +2736,14 @@
       document.getElementById("templateHelpToggle").addEventListener("click", () => {
         document.getElementById("templateHelp").classList.toggle("hidden");
       });
+      document.getElementById("prevPageButton").addEventListener("click", () => moveResultPage(-1));
+      document.getElementById("nextPageButton").addEventListener("click", () => moveResultPage(1));
       document.getElementById("metricChart").addEventListener("mousemove", showChartTooltip);
       document.getElementById("metricChart").addEventListener("mouseleave", hideChartTooltip);
 
       async function bootstrap() {
         try {
+          renderResultPages();
           await loadCurrentUser();
           await loadTemplates();
           await loadJobs();

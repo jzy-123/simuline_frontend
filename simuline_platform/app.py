@@ -35,11 +35,15 @@ from .services import (
     PROJECT_ROOT,
     RESULT_ROOT,
     STATIC_ROOT,
+    EntityNotFoundError,
+    EntityTypeError,
     ExperimentDeleteError,
     ExperimentNotFoundError,
     delete_experiment_result,
     delete_experiment_results,
     describe_output,
+    entity_catalog_payload,
+    entity_detail_payload,
     experiment_detail_payload,
     experiment_report_payload,
     list_experiment_outputs,
@@ -148,6 +152,14 @@ def index() -> FileResponse:
     return FileResponse(index_path)
 
 
+@app.get("/drilldown")
+def drilldown_page() -> FileResponse:
+    page_path = STATIC_ROOT / "drilldown.html"
+    if not page_path.exists():
+        raise HTTPException(status_code=404, detail="个体详情页面不存在")
+    return FileResponse(page_path)
+
+
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     return {
@@ -211,6 +223,26 @@ def experiment_detail(experiment_id: str) -> dict[str, Any]:
         return experiment_detail_payload(experiment_id)
     except ExperimentNotFoundError as exc:
         raise not_found(exc) from exc
+
+
+@app.get("/api/experiments/{experiment_id}/entity-catalog")
+def experiment_entity_catalog(experiment_id: str) -> dict[str, Any]:
+    try:
+        return entity_catalog_payload(experiment_id)
+    except ExperimentNotFoundError as exc:
+        raise not_found(exc) from exc
+
+
+@app.get("/api/experiments/{experiment_id}/entities/{entity_type}/{entity_id}")
+def experiment_entity_detail(experiment_id: str, entity_type: str, entity_id: int) -> dict[str, Any]:
+    try:
+        return entity_detail_payload(experiment_id, entity_type, entity_id)
+    except ExperimentNotFoundError as exc:
+        raise not_found(exc) from exc
+    except EntityNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except EntityTypeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/experiments/{experiment_id}/report")
